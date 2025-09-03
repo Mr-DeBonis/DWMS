@@ -7,6 +7,8 @@ app_name = "SAIApp"
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('login/', views.login_user, name='login'),
+    path('logout/', views.logout_user, name='logout'),
     path('DWMSDespacho/', views.DWMSDespacho, name='DWMSDespacho'),
     path('DWMSRecepcion/', views.DWMSRecepcion, name='DWMSRecepcion'),
 

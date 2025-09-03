@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-
-    <div class="page-header">
-        <h2>Despachos</h2>
-    </div>
+    {% if user.is_authenticated %}
     
+        <div class="page-header">
+            <h2>Despachos</h2>
+        </div>
+    
+    {% endif %}
 {% endblock %}
