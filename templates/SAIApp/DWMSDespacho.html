@@ -1,10 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
     {% if user.is_authenticated %}
-    
+        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
         <div class="page-header">
             <h2>Despachos</h2>
         </div>
-    
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Búsqueda de Folio</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-8 col-md-9 col-lg-10">
+                                <form action="{% url 'SAIApp:DWMSDespacho' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-secondary" role="button"
+                                                    id="btn_scan_folio" data-toggle="modal"
+                                                    data-target="#scanner_modal"><span
+                                                    class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+                                            </button>
+                                        </div>
+                                        {{ form.folio }}
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-default" role="button"
+                                                    id="btn_clean_folio"><span class="glyphicon glyphicon-remove"
+                                                                               aria-hidden="true"></span></button>
+                                            <button type="submit" class="btn btn-secondary" role="button"><span
+                                                    class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="clearfix visible-xs-block"><br></div>
+                            <div class="col-sm-4 col-md-3 col-lg-2">
+                                <a href="{% url 'SAIApp:DWMSDespachoIngresar' %}" class="btn btn-success btn-block">&nbsp;Nuevo
+                                    despacho</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <table class="table table-hover">
+                        <thead>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Transporte</th>
+                        <th scope="col">Otro transporte</th>
+                        <th scope="col">Detalles</th>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Mundo</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     {% endif %}
 {% endblock %}

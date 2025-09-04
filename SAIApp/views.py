@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.shortcuts import render, redirect
 
+from SAIApp.forms import FormGuiaHeader
+
 
 # Create your views here.
 def index(request):
@@ -34,7 +36,21 @@ def logout_user(request):
 
 
 def DWMSDespacho(request):
-    return render(request, 'SAIApp/DWMSDespacho.html')
+    print(request.method)
+    if request.method == "POST":
+        form = FormGuiaHeader(request.POST)
+
+    else:
+        form = FormGuiaHeader()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'SAIApp/DWMSDespacho.html', context=context)
+
+
+def DWMSDespachoIngresar(request):
+    pass
 
 
 def DWMSRecepcion(request):
