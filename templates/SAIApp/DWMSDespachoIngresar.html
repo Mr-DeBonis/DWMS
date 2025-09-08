@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+	{% if user.is_authenticated %}
+        <div class="page-header">
+            <h2>Ingresar Despacho</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Datos del Despacho</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form method="POST" action="{% url 'SAIApp:DWMSDespachoIngresar' %}" id="id_form">
+                            <div class="form-group">
+                                <label for="id_transporte" class="control-label">{{ form.transporte.label }}</label>
+                                {{ form.transporte }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_fecha_despacho" class="control-label">{{ form.fecha_despacho.label }}</label>
+                                {{ form.fecha_despacho }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_nota" class="control-label">{{ form.nota.label }}</label>
+                                {{ form.nota }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+	{% endif %} 
+{% endblock %}

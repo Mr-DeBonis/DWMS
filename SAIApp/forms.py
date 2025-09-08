@@ -1,6 +1,6 @@
 from django import forms
 
-from SAIApp.models import dwms_guia_header
+from SAIApp.models import dwms_guia_header, dwms_despacho, dwms_transporte
 
 
 class FormGuiaHeader(forms.ModelForm):
@@ -9,8 +9,8 @@ class FormGuiaHeader(forms.ModelForm):
         fields = ['folio']
         widgets = {
             'folio': forms.NumberInput(attrs={
-                "placeholder":"Folio",
-                "class":"form-control",
+                "placeholder": "Folio",
+                "class": "form-control",
                 "name": "folio",
                 "required min": "1",
                 "id": "id_folio",
@@ -20,3 +20,39 @@ class FormGuiaHeader(forms.ModelForm):
         labels = {
             'folio': 'Folio:',
         }
+
+
+
+class FormDespacho(forms.ModelForm):
+    fecha_despacho = forms.DateTimeField(
+        input_formats= ['%d/%m/%Y %H:%M', '%Y-%m-%dT%H:%M'],
+        widget=forms.DateTimeInput(attrs={
+            'class': 'form-control',
+            'type': 'datetime-local',
+        })
+    )
+
+    class Meta:
+        model = dwms_despacho
+        fields = ['transporte', 'fecha_despacho', 'nota']
+
+        widgets = {
+            'transporte': forms.Select(attrs={
+                'class': 'form-control',
+                'queryset': dwms_transporte.objects.filter(activo=True),
+                'empty_label': None,
+            }),
+            'nota': forms.Textarea(attrs={
+                'rows': 3,
+                'autocorrect': 'on',
+                'maxlength': 255,
+                'style': 'resize:vertical',
+                'class': 'form-control',
+            })
+        }
+
+
+    def __init__(self, *args, **kwargs):
+        super(FormDespacho, self).__init__(*args, **kwargs)
+        self.fields['transporte'].queryset = dwms_transporte.objects.filter(activo=True)
+        self.fields['transporte'].empty_label = None
