@@ -25,7 +25,7 @@ class FormGuiaHeader(forms.ModelForm):
 
 class FormDespacho(forms.ModelForm):
     fecha_despacho = forms.DateTimeField(
-        input_formats= ['%d/%m/%Y %H:%M', '%Y-%m-%dT%H:%M'],
+        input_formats= ['%Y-%m-%dT%H:%M'],
         widget=forms.DateTimeInput(attrs={
             'class': 'form-control',
             'type': 'datetime-local',
@@ -56,3 +56,4 @@ class FormDespacho(forms.ModelForm):
         super(FormDespacho, self).__init__(*args, **kwargs)
         self.fields['transporte'].queryset = dwms_transporte.objects.filter(activo=True)
         self.fields['transporte'].empty_label = None
+

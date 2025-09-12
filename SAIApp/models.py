@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 class dwms_guia_header(models.Model):
@@ -62,6 +63,24 @@ class dwms_despacho(models.Model):
     class Meta:
         verbose_name = 'Despacho'
         verbose_name_plural = 'Despachos'
+
+    def save(self, *args, **kwargs):
+        # If current_user has been set externally (from the view)
+        user = getattr(self, 'current_user', None)
+
+        if not self.pk:
+            # new object
+            if user is not None:
+                self.creacion_user = user
+                self.mod_user = user
+                self.fecha_creacion = timezone.now()
+        else:
+            # updating existing object
+            if user is not None:
+                self.mod_user = user
+        self.fecha_modificacion = timezone.now()
+
+        super().save(*args, **kwargs)
 
 
 def dwms_foto_despacho_path(instance, filename):

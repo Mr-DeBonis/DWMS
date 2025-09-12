@@ -38,7 +38,6 @@ def logout_user(request):
 def DWMSDespacho(request):
     if request.method == "POST":
         form = FormGuiaHeader(request.POST)
-
     else:
         form = FormGuiaHeader()
 
@@ -51,6 +50,14 @@ def DWMSDespacho(request):
 def DWMSDespachoIngresar(request):
     if request.method == 'POST':
         form = FormDespacho(request.POST)
+        if form.is_valid():
+            despacho = form.save(commit=False)
+            despacho.current_user = request.user
+            despacho.save()
+            messages.success(request, "Despacho guardado")
+            return redirect("SAIApp:DWMSDespacho")
+        else:
+            print(form.errors)
     else:
         form = FormDespacho()
 
