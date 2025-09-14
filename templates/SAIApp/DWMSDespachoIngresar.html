@@ -4,48 +4,43 @@
         <div class="page-header">
             <h2>Ingresar Despacho</h2>
         </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Datos del Despacho</h3>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos del Despacho</h3>
+            </div>
+            <div class="panel-body">
+                <form method="POST" action="{% url 'SAIApp:DWMSDespachoIngresar' %}" id="id_form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_transporte" class="control-label">{{ form.transporte.label }}</label>
+                        {{ form.transporte }}
                     </div>
-                    <div class="panel-body">
-                        <form method="POST" action="{% url 'SAIApp:DWMSDespachoIngresar' %}" id="id_form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label for="id_transporte" class="control-label">{{ form.transporte.label }}</label>
-                                {{ form.transporte }}
-                            </div>
-                            <div class="form-group">
-                                <label for="id_fecha_despacho"
-                                       class="control-label">{{ form.fecha_despacho.label }}</label>
-                                {{ form.fecha_despacho }}
-                            </div>
-                            <div class="form-group">
-                                <label for="id_nota" class="control-label">{{ form.nota.label }}</label>
-                                {{ form.nota }}
-                            </div>
-                            <div class="col-sm-4 col-sm-offset-4">
-                                <button type="submit" id="saveBtn" class="btn btn-success btn-block">Guardar</button>
-                            </div>
-                        </form>
-                        {% if form.errors %}
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                    <div class="alert alert-danger" role="alert">
-                                        {{ error|escape }}
-                                    </div>
-                                {% endfor %}
-                            {% endfor %}
-                            {% for error in form.non_field_errors %}
-                                <div class="alert alert-danger" role="alert">
-                                    {{ error|escape }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                    <div class="form-group">
+                        <label for="id_fecha_despacho"
+                               class="control-label">{{ form.fecha_despacho.label }}</label>
+                        {{ form.fecha_despacho }}
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="id_nota" class="control-label">{{ form.nota.label }}</label>
+                        {{ form.nota }}
+                    </div>
+                    <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespacho' %}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp Cancelar</a>
+                    <button type="submit" id="saveBtn" class="btn btn-primary btn-lg" style="float: right;"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp Guardar</button>
+                </form>
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error|escape }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error|escape }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     {% endif %}
