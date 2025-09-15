@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="page-header">
+            <h2>Detalles Despacho</h2>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos del Despacho</h3>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Transporte</h6>
+                        <small class="list-group-item-text">{{ despacho.transporte }}</small>
+                    {% if despacho.transporte == 'OTRO' %}
+                        <small class="list-group-item-text">{{ despacho.otro_transporte }}</small>
+                    {% endif %}
+                </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Fecha despacho</h6>
+                    <small class="list-group-item-text">{{ despacho.fecha_despacho }}</small>
+                </li>
+                {% if despacho.nota %}
+                    <li class="list-group-item">
+                        <h6 class="list-group-item-heading">Notas</h6>
+                        <small class="list-group-item-text text-body-secondary">{{ despacho.nota }}</small>
+                    </li>
+                {% endif %}
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Creación</h6>
+                    <small class="list-group-item-text">{{ despacho.fecha_creacion }} por {{ despacho.creacion_user }}</small>
+                </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Modificación</h6>
+                    <small class="list-group-item-text ">{{ despacho.fecha_modificacion }} por {{ despacho.mod_user }}</small>
+                </li>
+            </ul>
+        </div>
+        <!--
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Guías asociadas</h4>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item"></li>
+            </ul>
+        </div>
+        -->
+    {% endif %}
+{% endblock %}

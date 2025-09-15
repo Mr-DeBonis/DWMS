@@ -3,6 +3,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.shortcuts import render, redirect
 
 from SAIApp.forms import FormGuiaHeader, FormDespacho
+from SAIApp.models import dwms_despacho
 
 
 # Create your views here.
@@ -36,13 +37,22 @@ def logout_user(request):
 
 
 def DWMSDespacho(request):
+    despachos = []
     if request.method == "POST":
         form = FormGuiaHeader(request.POST)
+        if form.is_valid():
+            folio = form.cleaned_data['folio']
+            despachos = dwms_despacho.objects.filter(dwms_guia_desp_set__guia_header__folio=folio)
+            if len(despachos) == 0:
+                messages.warning(request, "No se han encontrado despachos asociados")
     else:
         form = FormGuiaHeader()
+        despachos = dwms_despacho.objects.all()
+
 
     context = {
         'form': form,
+        'despachos': despachos
     }
     return render(request, 'SAIApp/DWMSDespacho.html', context=context)
 
@@ -65,6 +75,14 @@ def DWMSDespachoIngresar(request):
         'form': form,
     }
     return render(request, 'SAIApp/DWMSDespachoIngresar.html', context=context)
+
+
+def DWMSDespachoDetalle(request, despacho_id):
+    despacho = dwms_despacho.objects.get(pk=despacho_id)
+    context = {
+        'despacho': despacho
+    }
+    return render(request, 'SAIApp/DWMSDespachoDetalle.html', context=context)
 
 
 def DWMSRecepcion(request):

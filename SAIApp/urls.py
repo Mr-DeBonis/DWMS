@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/', views.logout_user, name='logout'),
     path('DWMSDespacho/', views.DWMSDespacho, name='DWMSDespacho'),
     path('DWMSDespachoIngresar/', views.DWMSDespachoIngresar, name='DWMSDespachoIngresar'),
+    path('DWMSDespachoDetalle/<despacho_id>', views.DWMSDespachoDetalle, name='DWMSDespachoDetalle'),
     path('DWMSRecepcion/', views.DWMSRecepcion, name='DWMSRecepcion'),
 
 ]
