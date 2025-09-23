@@ -3,7 +3,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.shortcuts import render, redirect
 
 from SAIApp.forms import FormGuiaHeader, FormDespacho
-from SAIApp.models import dwms_despacho
+from SAIApp.models import dwms_despacho, dwms_foto_despacho
 
 
 # Create your views here.
@@ -60,10 +60,18 @@ def DWMSDespacho(request):
 def DWMSDespachoIngresar(request):
     if request.method == 'POST':
         form = FormDespacho(request.POST)
+        files = request.FILES.getlist('filepond')
         if form.is_valid():
             despacho = form.save(commit=False)
             despacho.current_user = request.user
             despacho.save()
+
+            for file in files:
+                dwms_foto_despacho.objects.create(
+                    despacho=despacho,
+                    foto=file
+                )
+
             messages.success(request, "Despacho guardado")
             return redirect("SAIApp:DWMSDespacho")
         else:
