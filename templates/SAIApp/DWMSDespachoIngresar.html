@@ -66,31 +66,6 @@
 
         <script type="text/javascript">
             const transformedFilesMap = new Map();
-            function getLocalTimestamp() {
-                const now = new Date();
-                const pad = (n) => String(n).padStart(2, '0');
-
-                const year = now.getFullYear();
-                const month = pad(now.getMonth() + 1);
-                const day = pad(now.getDate());
-                const hours = pad(now.getHours());
-                const minutes = pad(now.getMinutes());
-                const seconds = pad(now.getSeconds());
-
-                return `${year}${month}${day}${hours}${minutes}${seconds}`;
-            }
-
-            function* filenameGenerator() {
-                let counter = 0;
-                const timestamp = getLocalTimestamp();
-
-                while (true) {
-                    yield `${timestamp}_${counter}`;
-                    counter++;
-                }
-            }
-
-            const getFilename = filenameGenerator();
 
             document.addEventListener('FilePond:preparefile', (e) => {
                 console.log("Archivo preparado", e.detail);
@@ -117,7 +92,6 @@
                 toggleOtroField();
 
                 FilePond.registerPlugin(
-                    FilePondPluginFileRename,
                     FilePondPluginFileValidateType,
                     FilePondPluginImagePreview,
                     FilePondPluginImageResize,
@@ -146,10 +120,6 @@
                     //imageTransformVariantsIncludeDefault: false,
                     //imageTransformOutputQuality: 90,
                     imageTransformOutputMimeType: 'image/jpeg', // force to JPEG
-                    fileRenameFunction: (file) => {
-                        const newFilename = getFilename.next().value;
-                        return `${newFilename}${file.extension}`;
-                    },
                     onremovefile: (err, file) => {
                         transformedFilesMap.delete(file.id);
                     },
@@ -178,12 +148,17 @@
                     })
                         .then(response => {
                             if (response.ok) {
-                                window.location.href = "{% url 'SAIApp:DWMSDespacho' %}";
+                                return response.json();
                             } else {
                                 return response.text().then(text => {
                                     console.error('Error:', text);
                                     alert("There was an error: " + text);
                                 });
+                            }
+                        })
+                        .then(data => {
+                            if (data && data.despacho_id) {
+                                window.location.href = `/SAIApp/DWMSDespachoDetalle/${data.despacho_id}`;
                             }
                         })
                         .catch(error => {

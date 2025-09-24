@@ -13,8 +13,8 @@
                 <li class="list-group-item">
                     <h6 class="list-group-item-heading">Transporte</h6>
                         <small class="list-group-item-text">{{ despacho.transporte }}</small>
-                    {% if despacho.transporte == 'OTRO' %}
-                        <small class="list-group-item-text">{{ despacho.otro_transporte }}</small>
+                    {% if despacho.transporte.nombre == 'OTRO' %}
+                        <small class="list-group-item-text">- {{ despacho.otro_transporte }}</small>
                     {% endif %}
                 </li>
                 <li class="list-group-item">
@@ -56,12 +56,8 @@
             </div>
             <!-- Modal -->
             <div class="modal fade" id="fotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
+                <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
-                        <!--
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span></button>
-                                    -->
                         <div class="modal-body text-center">
                             <img src="" alt="Foto despacho" class="img-responsive">
                         </div>
@@ -72,23 +68,12 @@
                 </div>
             </div>
         {% endif %}
-        <!--
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Guías asociadas</h4>
-            </div>
-            <ul class="list-group">
-                <li class="list-group-item"></li>
-            </ul>
-        </div>
-        -->
         <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespacho' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', function() {
                 var modal = document.getElementById('fotoModal');
                 var modalImg = modal.querySelector('.modal-body img');
 
-                // Select all thumbnails
                 var thumbnails = document.querySelectorAll('.foto-thumbnail');
 
                 thumbnails.forEach(function(button) {

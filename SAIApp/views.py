@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from SAIApp.forms import FormGuiaHeader, FormDespacho
@@ -42,12 +43,12 @@ def DWMSDespacho(request):
         form = FormGuiaHeader(request.POST)
         if form.is_valid():
             folio = form.cleaned_data['folio']
-            despachos = dwms_despacho.objects.filter(dwms_guia_desp_set__guia_header__folio=folio)
+            despachos = dwms_despacho.objects.filter(dwms_guia_desp_set__guia_header__folio=folio).order_by('-fecha_despacho')
             if len(despachos) == 0:
                 messages.warning(request, "No se han encontrado despachos asociados")
     else:
         form = FormGuiaHeader()
-        despachos = dwms_despacho.objects.all()
+        despachos = dwms_despacho.objects.all().order_by('-fecha_despacho')
 
 
     context = {
@@ -73,7 +74,12 @@ def DWMSDespachoIngresar(request):
                 )
 
             messages.success(request, "Despacho guardado")
-            return redirect("SAIApp:DWMSDespacho")
+            print("Success, saved as " + str(despacho.pk))
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'despacho_id': despacho.pk})
+
+            return redirect('SAIApp:DWMSDespachoDetalle', despacho_id=despacho.pk)
         else:
             print(form.errors)
     else:

@@ -56,7 +56,7 @@
                 <tbody>
                 {% for despacho in despachos %}
                     <tr>
-                    <td>{{ despacho.fecha_modificacion }}</td>
+                    <td>{{ despacho.fecha_despacho }}</td>
                     <td>{{ despacho.transporte }}</td>
                     <td>{{ despacho.otro_transporte|default:"" }}</td>
                     <td><a class="btn btn-primary btn-xs delete-bodega" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><i class="glyphicon glyphicon-eye-open"></i></a></td>
