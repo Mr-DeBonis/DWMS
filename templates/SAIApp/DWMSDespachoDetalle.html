@@ -37,6 +37,41 @@
                 </li>
             </ul>
         </div>
+        {% if fotos %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Fotos del despacho</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        {% for foto in fotos %}
+                            <div class="col-sm-6 col-md-4">
+                                <button class="thumbnail foto-thumbnail" data-toggle="modal" data-target="#fotoModal" data-url="{{ foto.foto.url }}">
+                                    <img src="{{ foto.foto.url }}" alt="banana">
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="fotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <!--
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                                    -->
+                        <div class="modal-body text-center">
+                            <img src="" alt="Foto despacho" class="img-responsive">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <!--
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -48,5 +83,21 @@
         </div>
         -->
         <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespacho' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modal = document.getElementById('fotoModal');
+                var modalImg = modal.querySelector('.modal-body img');
+
+                // Select all thumbnails
+                var thumbnails = document.querySelectorAll('.foto-thumbnail');
+
+                thumbnails.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        var url = button.getAttribute('data-url');
+                        modalImg.setAttribute('src', url);
+                    });
+                });
+            });
+        </script>
     {% endif %}
 {% endblock %}

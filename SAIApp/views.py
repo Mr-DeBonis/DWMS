@@ -87,8 +87,11 @@ def DWMSDespachoIngresar(request):
 
 def DWMSDespachoDetalle(request, despacho_id):
     despacho = dwms_despacho.objects.get(pk=despacho_id)
+    fotos = dwms_foto_despacho.objects.filter(despacho=despacho)
+
     context = {
-        'despacho': despacho
+        'despacho': despacho,
+        'fotos': fotos,
     }
     return render(request, 'SAIApp/DWMSDespachoDetalle.html', context=context)
 
