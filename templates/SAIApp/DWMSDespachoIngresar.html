@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+	<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet"/>
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet"/>
+{% endblock %}
 {% block content %}
     {% if user.is_authenticated %}
         <div class="page-header">
@@ -30,6 +36,7 @@
                     </div>
                     <div class="form-group">
                         <label for="filepond" class="control-label">Fotos</label>
+                        <p class="help-block">Cargue hasta 3 fotos en formato .jpg/.png</p>
                         <input type="file"
                                class="filepond"
                                name="filepond"
@@ -64,7 +71,19 @@
             </div>
         </div>
 
-        <script type="text/javascript">
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'SAIApp/js/filepond.js' %}"></script>
+    
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+	<script type="text/javascript">
             const transformedFilesMap = new Map();
 
             document.addEventListener('FilePond:preparefile', (e) => {
@@ -90,45 +109,9 @@
 
                 transporteSelect.addEventListener('change', toggleOtroField);
                 toggleOtroField();
+                /////////////////////////////////////////////////////////
 
-                FilePond.registerPlugin(
-                    FilePondPluginFileValidateType,
-                    FilePondPluginImagePreview,
-                    FilePondPluginImageResize,
-                    FilePondPluginImageTransform,
-                );
-
-                FilePond.setOptions({
-                    server: null,
-                    allowMultiple: true,
-                    maxFiles: 3,
-                    credits: false,
-                    dropOnPage: true,
-                    dropOnElement: true,
-                })
-                const inputElement = document.querySelector('input[type="file"]');
-                const pond = FilePond.create(inputElement, {
-                    acceptedFileTypes: ['image/*'],
-                    labelFileTypeNotAllowed: 'Formato de archivo inválido. Ingrese fotos o imágenes.',
-                    // Resize before upload
-                    imageResizeTargetWidth: 1280,
-                    imageResizeTargetHeight: 1280,
-                    imageResizeMode: 'contain',
-                    imageResizeUpscale: "false",
-                    // Compression
-                    //allowImageTransform: true,
-                    //imageTransformVariantsIncludeDefault: false,
-                    //imageTransformOutputQuality: 90,
-                    imageTransformOutputMimeType: 'image/jpeg', // force to JPEG
-                    onremovefile: (err, file) => {
-                        transformedFilesMap.delete(file.id);
-                    },
-                    onpreparefile: (file, output) => {
-                        const outputFile = new File([output], output.name, {type: output.type});
-                        transformedFilesMap.set(file.id, outputFile);
-                    }
-
-                });
+                const pond = createFilepondElement();
                 const form = document.getElementById('postForm');
                 form.addEventListener('submit', function (e) {
                     e.preventDefault();
@@ -152,7 +135,7 @@
                             } else {
                                 return response.text().then(text => {
                                     console.error('Error:', text);
-                                    alert("There was an error: " + text);
+                                    alert("Hubo un error: " + text);
                                 });
                             }
                         })
@@ -162,11 +145,9 @@
                             }
                         })
                         .catch(error => {
-                            console.error('Unexpected error:', error);
+                            console.error('Error no esperado:', error);
                         });
                 });
             });
         </script>
-
-    {% endif %}
 {% endblock %}
