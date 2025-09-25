@@ -67,14 +67,15 @@ class dwms_despacho(models.Model):
     def save(self, *args, **kwargs):
         user = getattr(self, 'current_user', None)
 
+        if user is None:
+            raise ValueError("Debe establecer el usuario antes de guardar.")
+
         if not self.pk:
-            if user is not None:
-                self.creacion_user = user
-                self.mod_user = user
-                self.fecha_creacion = timezone.now()
+            self.creacion_user = user
+            self.mod_user = user
+            self.fecha_creacion = timezone.now()
         else:
-            if user is not None:
-                self.mod_user = user
+            self.mod_user = user
         self.fecha_modificacion = timezone.now()
 
         super().save(*args, **kwargs)
@@ -112,6 +113,22 @@ class dwms_guia_desp(models.Model):
     class Meta:
         verbose_name = 'Guía despachada'
         verbose_name_plural = 'Guías despachadas'
+
+    def save(self, *args, **kwargs):
+        user = getattr(self, 'current_user', None)
+
+        if user is None:
+            raise ValueError("Debe establecer el usuario antes de guardar.")
+
+        if not self.pk:
+            self.creacion_user = user
+            self.mod_user = user
+            self.fecha_creacion = timezone.now()
+        else:
+            self.mod_user = user
+        self.fecha_modificacion = timezone.now()
+
+        super().save(*args, **kwargs)
 
 
 def dwms_foto_guia_desp_path(instance, filename):
@@ -161,6 +178,22 @@ class dwms_recepcion(models.Model):
         verbose_name = 'Despacho'
         verbose_name_plural = 'Despachos'
 
+    def save(self, *args, **kwargs):
+        user = getattr(self, 'current_user', None)
+
+        if user is None:
+            raise ValueError("Debe establecer el usuario antes de guardar.")
+
+        if not self.pk:
+            self.creacion_user = user
+            self.mod_user = user
+            self.fecha_creacion = timezone.now()
+        else:
+            self.mod_user = user
+        self.fecha_modificacion = timezone.now()
+
+        super().save(*args, **kwargs)
+
 
 def dwms_foto_recepcion_path(instance, filename):
     name, ext = os.path.splitext(filename)
@@ -196,6 +229,22 @@ class dwms_guia_recibida(models.Model):
     class Meta:
         verbose_name = 'Guía recibida'
         verbose_name_plural = 'Guías recibidas'
+
+    def save(self, *args, **kwargs):
+        user = getattr(self, 'current_user', None)
+
+        if user is None:
+            raise ValueError("Debe establecer el usuario antes de guardar.")
+
+        if not self.pk:
+            self.creacion_user = user
+            self.mod_user = user
+            self.fecha_creacion = timezone.now()
+        else:
+            self.mod_user = user
+        self.fecha_modificacion = timezone.now()
+
+        super().save(*args, **kwargs)
 
 
 def dwms_foto_guia_recibida_path(instance, filename):
