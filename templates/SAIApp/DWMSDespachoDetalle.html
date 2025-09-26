@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
-    {% if user.is_authenticated %}
+{% if user.is_authenticated %}
+    {% block content %}
         <div class="page-header">
             <h2>Detalles Despacho</h2>
         </div>
@@ -47,8 +47,22 @@
                         </div>
                         <ul class="list-group">
                             {% for guia in guias %}
-                                <li class="list-group-item">
-                                    <h6>{{ guia.guia_header.folio }}</h6>
+                                <li class="list-group-item lh-sm">
+                                    <div class="pull-left">
+                                        <h6>{{ guia.guia_header.folio }}</h6>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a href="#" role="button"  class="btn btn-danger">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </a>
+                                        <a href="#" role="button" class="btn btn-warning">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                        </a>
+                                        <a href="{% url 'SAIApp:DWMSDespachoVerGuia' guia.pk %}" role="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                                        </a>
+                                    </div>
+                                    <div class="clearfix"></div>
                                 </li>
                             {% endfor %}
                             <li class="list-group-item">
@@ -90,6 +104,9 @@
             </div>
         {% endif %}
         <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespacho' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+    {% endblock %}
+
+    {% block script %}
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', function() {
                 var modal = document.getElementById('fotoModal');
@@ -105,5 +122,6 @@
                 });
             });
         </script>
-    {% endif %}
-{% endblock %}
+    {% endblock %}
+
+{% endif %}

@@ -45,21 +45,23 @@
                                accept="image/*,application/pdf"/>
                     </div>
 
-                    {% if form.errors %}
-                        {% for field in form %}
-                            {% for error in field.errors %}
+                    <div id="errorsContainer">
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="alert alert-danger alert-dismissible" role="alert">
+                                        {{ error|escape }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
                                 <div class="alert alert-danger alert-dismissible" role="alert">
                                     {{ error|escape }}
                                 </div>
                             {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                {{ error|escape }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    <div id="errorsContainer"></div>
+                        {% endif %}
+                    </div>
+
                     <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespacho' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
                     <button type="submit" id="saveBtn" class="btn btn-primary btn-lg" style="float: right;"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp Guardar</button>
                 </form>
