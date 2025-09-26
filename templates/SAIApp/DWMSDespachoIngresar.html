@@ -42,11 +42,6 @@
                                name="filepond"
                                id="filepond"
                                multiple
-                                {% comment %}
-                           data-allow-reorder="true"
-                           data-max-file-size="3MB"
-                           data-max-files="3"
-                           {% endcomment %}
                                accept="image/*,application/pdf"/>
                     </div>
 
@@ -64,7 +59,7 @@
                             </div>
                         {% endfor %}
                     {% endif %}
-
+                    <div id="errorsContainer"></div>
                     <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespacho' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
                     <button type="submit" id="saveBtn" class="btn btn-primary btn-lg" style="float: right;"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp Guardar</button>
                 </form>
@@ -133,21 +128,35 @@
                             if (response.ok) {
                                 return response.json();
                             } else {
-                                return response.text().then(text => {
-                                    console.error('Error:', text);
-                                    alert("Hubo un error: " + text);
+                                return response.json().then(data => {
+                                    showFormErrors(data.errors);
+                                    throw new Error('Validation error');
                                 });
                             }
                         })
                         .then(data => {
-                            if (data && data.despacho_id) {
                                 window.location.href = `/SAIApp/DWMSDespachoDetalle/${data.despacho_id}`;
-                            }
                         })
                         .catch(error => {
                             console.error('Error no esperado:', error);
                         });
                 });
             });
+
+            function showFormErrors(errors) {
+                // clear existing alerts
+                const errorsContainer = document.getElementById('errorsContainer');
+                errorsContainer.innerHTML = '';
+
+                // field-specific errors
+                for (const [field, fieldErrors] of Object.entries(errors)) {
+                    fieldErrors.forEach(msg => {
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-danger alert-dismissible';
+                        alert.innerText = msg;
+                        errorsContainer.appendChild(alert);
+                    });
+                }
+            }
         </script>
 {% endblock %}

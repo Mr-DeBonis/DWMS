@@ -83,6 +83,7 @@ def DWMSDespachoIngresar(request):
             return redirect('SAIApp:DWMSDespachoDetalle', despacho_id=despacho.pk)
         else:
             print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
     else:
         form = FormDespacho()
 
@@ -128,8 +129,9 @@ def DWMSDespachoAgregarGuia(request, despacho_id):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'despacho_id': despacho.pk})
 
-            return redirect('SAIApp:DWMSDespachoAgregarGuia', despacho_id=despacho.pk)
+            return redirect('SAIApp:DWMSDespachoDetalle', despacho_id=despacho.pk)
         else:
+            print(form.errors)
             return JsonResponse({'errors': form.errors}, status=400)
 
     else:
