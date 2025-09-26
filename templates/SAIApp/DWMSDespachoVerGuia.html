@@ -26,6 +26,14 @@
                         <small class="list-group-item-text">Sin OT Transporte</small>
                     {% endif %} 
                 </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Creación</h6>
+                    <small class="list-group-item-text">{{ guia_desp.fecha_creacion }} por {{ guia_desp.creacion_user }}</small>
+                </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Modificación</h6>
+                    <small class="list-group-item-text ">{{ guia_desp.fecha_modificacion }} por {{ guia_desp.mod_user }}</small>
+                </li>
             </ul>
         </div>
         {% if fotos %}
