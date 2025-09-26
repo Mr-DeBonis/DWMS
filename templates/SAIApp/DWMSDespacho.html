@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block head %}
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+{% endblock %}
 {% block content %}
     {% if user.is_authenticated %}
-        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
         <div class="page-header">
             <h2>Despachos</h2>
@@ -43,29 +45,31 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th scope="col">Fecha</th>
-                    <th scope="col">Transporte</th>
-                    <th scope="col">Otro transporte</th>
-                    <th scope="col">Detalles</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for despacho in despachos %}
+        {% if despachos %}
+            <div class="panel panel-default">
+                <table class="table table-hover">
+                    <thead>
                     <tr>
-                    <td>{{ despacho.fecha_despacho }}</td>
-                    <td>{{ despacho.transporte }}</td>
-                    <td>{{ despacho.otro_transporte|default:"" }}</td>
-                    <td><a class="btn btn-primary btn-xs delete-bodega" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Transporte</th>
+                        <th scope="col">Otro transporte</th>
+                        <th scope="col">Detalles</th>
                     </tr>
-                {% empty %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                    {% for despacho in despachos %}
+                        <tr>
+                        <td>{{ despacho.fecha_despacho }}</td>
+                        <td>{{ despacho.transporte }}</td>
+                        <td>{{ despacho.otro_transporte|default:"" }}</td>
+                        <td><a class="btn btn-primary btn-xs delete-bodega" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                        </tr>
+                    {% empty %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
 
         {% include "DWMSBarcodeScanner.html" %}
 
@@ -84,20 +88,10 @@
                 });
             });
 
-            // Clear buttons logic
-            const clearButtons = {
-                "btn_clean_folio": ["id_folio", []],
-            };
-
-            Object.entries(clearButtons).forEach(([buttonId, [fieldId, panelIds]]) => {
-                document.getElementById(buttonId)?.addEventListener("click", () => {
-                    {# document.getElementById(fieldId).submit(); #}
-                    document.getElementById(fieldId).value = "";
-                    panelIds.forEach(panelId => {
-                        document.getElementById(panelId).classList.add("hidden");
-                    });
-                });
-            });
+            // Clear button logic
+            document.getElementById("btn_clean_folio").addEventListener("click", ()=>{
+                location.href = "{% url 'SAIApp:DWMSDespacho' %}";
+            })
         </script>
     {% endif %}
 {% endblock %}
