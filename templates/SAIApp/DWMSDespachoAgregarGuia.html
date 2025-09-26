@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+	<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet"/>
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+{% endblock %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="page-header">
+            <h2>Agregar Guía</h2>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos de la guía de despacho</h3>
+            </div>
+            <div class="panel-body">
+                <form method="POST" action="{% url 'SAIApp:DWMSDespachoAgregarGuia' despacho_id=despacho.pk %}" id="postForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_ot_transporte" class="control-label">{{ form.folio.label }}</label>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-secondary" role="button" id="btn_scan_folio" data-toggle="modal" data-target="#scanner_modal"><span class="glyphicon glyphicon-barcode" aria-hidden="true"></span></button>
+                            </div>
+                            {{ form.folio }}
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" role="button" id="btn_clean_folio"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_ot_transporte" class="control-label">{{ form.ot_transporte.label }}</label>
+                        {{ form.ot_transporte }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_nota" class="control-label">{{ form.nota.label }}</label>
+                        {{ form.nota }}
+                    </div>
+                    {{ form.despacho }}
+                    <div class="form-group">
+                        <label for="filepond" class="control-label">Fotos</label>
+                        <p class="help-block">Cargue hasta 3 fotos en formato .jpg/.png</p>
+                        <input type="file"
+                               class="filepond"
+                               name="filepond"
+                               id="filepond"
+                               multiple
+                               accept="image/*,application/pdf"/>
+                    </div>
+
+                    <div id="form-errors">
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="alert alert-danger alert-dismissible" role="alert">
+                                        {{ error|escape }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    {{ error|escape }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div id="errorsContainer"></div>
+                    <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+                    <button type="submit" id="saveBtn" class="btn btn-primary btn-lg" style="float: right;"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp Guardar</button>
+                </form>
+            </div>
+        </div>
+	{% endif %}
+    {% include "DWMSBarcodeScanner.html" %}
+{% endblock %}
+{% block script %}
+    <script src="{% static 'SAIApp/js/filepond.js' %}"></script>
+
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+    <script src="{% static 'SAIApp/js/barcodeScanner.js' %}"></script>
+	<script type="text/javascript">
+        const transformedFilesMap = new Map();
+
+        document.addEventListener('FilePond:preparefile', (e) => {
+            console.log("Archivo preparado", e.detail);
+        });
+
+        // Scanner buttons logic
+        /////////////////////////////////////////////////////
+        const scanButtons = {
+            "btn_scan_folio": "id_folio",
+        };
+
+        Object.entries(scanButtons).forEach(([buttonId, fieldId]) => {
+            document.getElementById(buttonId)?.addEventListener("click", () => {
+                fieldToFill = document.getElementById(fieldId);
+                startScanning();
+            });
+        });
+
+        // Clear buttons logic
+        const clearButtons = {
+            "btn_clean_folio": ["id_folio", []],
+        };
+
+        Object.entries(clearButtons).forEach(([buttonId, [fieldId, panelIds]]) => {
+            document.getElementById(buttonId)?.addEventListener("click", () => {
+                {# document.getElementById(fieldId).submit(); #}
+                document.getElementById(fieldId).value = "";
+                panelIds.forEach(panelId => {
+                    document.getElementById(panelId).classList.add("hidden");
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const pond = createFilepondElement();
+            const form = document.getElementById('postForm');
+
+            document.addEventListener('submit', function (e) {
+                if (e.target && e.target.id === 'postForm') {
+                    e.preventDefault();
+                    const form = e.target;
+
+                    let formData = new FormData(form);
+
+                    // Add FilePond files
+                    pond.getFiles().forEach((fileItem) => {
+                        const transformed = transformedFilesMap.get(fileItem.id);
+                        formData.append('filepond', transformed);
+                    });
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(data => {
+                                showFormErrors(data.errors);
+                                throw new Error('Validation error');
+                            });
+                        }
+                    })
+                    .then(data => {
+                        // success
+                        window.location.href = `/SAIApp/DWMSDespachoDetalle/${data.despacho_id}`;
+                    })
+            }
+       });
+    });
+
+    function showFormErrors(errors) {
+        // clear existing alerts
+        const errorsContainer = document.getElementById('errorsContainer');
+        errorsContainer.innerHTML = '';
+
+        // field-specific errors
+        for (const [field, fieldErrors] of Object.entries(errors)) {
+            fieldErrors.forEach(msg => {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger alert-dismissible';
+                alert.innerText = msg;
+                errorsContainer.appendChild(alert);
+            });
+        }
+    }
+    </script>
+{% endblock %}

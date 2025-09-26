@@ -1,6 +1,6 @@
 from django import forms
 
-from SAIApp.models import dwms_guia_header, dwms_despacho, dwms_transporte
+from SAIApp.models import dwms_guia_header, dwms_despacho, dwms_transporte, dwms_guia_desp, dwms_g_c_salida
 
 
 class FormGuiaHeader(forms.ModelForm):
@@ -14,7 +14,7 @@ class FormGuiaHeader(forms.ModelForm):
                 "name": "folio",
                 "required min": "1",
                 "id": "id_folio",
-                "required": "true"
+                "required": "true",
             })
         }
         labels = {
@@ -63,12 +63,66 @@ class FormDespacho(forms.ModelForm):
         transporte = cleaned_data.get('transporte')
         otro_transporte = cleaned_data.get('otro_transporte')
 
-        # Check if transporte is OTRO
         if transporte and transporte.nombre.strip().upper() == 'OTRO':
             if not otro_transporte:
                 self.add_error('otro_transporte', 'Este campo es requerido cuando el transporte es OTRO.')
         else:
-            # Clear the field if it's not OTRO
             cleaned_data['otro_transporte'] = ''
 
         return cleaned_data
+
+
+class FormGuiaDespachada(forms.ModelForm):
+    folio = forms.IntegerField(
+        label='Folio',
+        widget=forms.NumberInput(attrs={
+            "placeholder": "Folio",
+            "class": "form-control",
+            "name": "folio",
+            "min": "1",
+            "id": "id_folio",
+            "required": "true"
+        })
+    )
+
+    class Meta:
+        model = dwms_guia_desp
+        fields = ['ot_transporte', 'nota', 'despacho']
+        widgets = {
+            'ot_transporte': forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Orden de Transporte"
+            }),
+            'nota': forms.Textarea(attrs={
+                'rows': 3,
+                'autocorrect': 'on',
+                'maxlength': 255,
+                'style': 'resize:vertical',
+                'class': 'form-control',
+            }),
+            'despacho': forms.HiddenInput(),
+        }
+
+    def clean_folio(self):
+        folio = self.cleaned_data.get('folio')
+
+        try:
+            guia_header = dwms_guia_header.objects.get(folio=folio)
+        except dwms_guia_header.DoesNotExist:
+            raise forms.ValidationError("No hay una guía asociada a ese folio")
+
+        if guia_header:
+            if dwms_guia_desp.objects.filter(guia_header=guia_header).exists():
+                raise forms.ValidationError("El folio " + str(folio) + " ya está asignado a otro despacho.")
+            if not dwms_g_c_salida.objects.filter(header=guia_header).exists():
+                raise forms.ValidationError("El folio " + str(folio) + " no ha pasado por control de salida.")
+
+        self.guia_header = guia_header
+        return folio
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.guia_header = self.guia_header
+        if commit:
+            instance.save()
+        return instance
