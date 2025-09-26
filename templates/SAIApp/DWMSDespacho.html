@@ -3,77 +3,77 @@
 {% block head %}
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 {% endblock %}
-{% block content %}
-    {% if user.is_authenticated %}
+{% if user.is_authenticated %}
+    {% block content %}
 
-        <div class="page-header">
-            <h2>Despachos</h2>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Búsqueda de Folio</h3>
+            <div class="page-header">
+                <h2>Despachos</h2>
             </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-sm-8 col-md-9 col-lg-10">
-                        <form action="{% url 'SAIApp:DWMSDespacho' %}" method="post">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-secondary" role="button"
-                                            id="btn_scan_folio" data-toggle="modal"
-                                            data-target="#scanner_modal"><span
-                                            class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
-                                    </button>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Búsqueda de Folio</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-8 col-md-9 col-lg-10">
+                            <form action="{% url 'SAIApp:DWMSDespacho' %}" method="post">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-secondary" role="button"
+                                                id="btn_scan_folio" data-toggle="modal"
+                                                data-target="#scanner_modal"><span
+                                                class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                    {{ form.folio }}
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default" role="button"
+                                                id="btn_clean_folio"><span class="glyphicon glyphicon-remove"
+                                                                           aria-hidden="true"></span></button>
+                                        <button type="submit" class="btn btn-secondary" role="button"><span
+                                                class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
                                 </div>
-                                {{ form.folio }}
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default" role="button"
-                                            id="btn_clean_folio"><span class="glyphicon glyphicon-remove"
-                                                                       aria-hidden="true"></span></button>
-                                    <button type="submit" class="btn btn-secondary" role="button"><span
-                                            class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="clearfix visible-xs-block"><br></div>
-                    <div class="col-sm-4 col-md-3 col-lg-2">
-                        <a href="{% url 'SAIApp:DWMSDespachoIngresar' %}" class="btn btn-success btn-block"><i class="glyphicon glyphicon-plus"></i>&nbsp;Nuevo despacho</a>
+                            </form>
+                        </div>
+                        <div class="clearfix visible-xs-block"><br></div>
+                        <div class="col-sm-4 col-md-3 col-lg-2">
+                            <a href="{% url 'SAIApp:DWMSDespachoIngresar' %}" class="btn btn-success btn-block"><i class="glyphicon glyphicon-plus"></i>&nbsp;Nuevo despacho</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {% if despachos %}
-            <div class="panel panel-default">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th scope="col">Fecha</th>
-                        <th scope="col">Transporte</th>
-                        <th scope="col">Otro transporte</th>
-                        <th scope="col">Detalles</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for despacho in despachos %}
+            {% if despachos %}
+                <div class="panel panel-default">
+                    <table class="table table-hover">
+                        <thead>
                         <tr>
-                        <td>{{ despacho.fecha_despacho }}</td>
-                        <td>{{ despacho.transporte }}</td>
-                        <td>{{ despacho.otro_transporte|default:"" }}</td>
-                        <td><a class="btn btn-primary btn-xs delete-bodega" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Transporte</th>
+                            <th scope="col">Otro transporte</th>
+                            <th scope="col">Detalles</th>
                         </tr>
-                    {% empty %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
+                        </thead>
+                        <tbody>
+                        {% for despacho in despachos %}
+                            <tr>
+                            <td>{{ despacho.fecha_despacho }}</td>
+                            <td>{{ despacho.transporte }}</td>
+                            <td>{{ despacho.otro_transporte|default:"" }}</td>
+                            <td><a class="btn btn-primary btn-xs delete-bodega" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                            </tr>
+                        {% empty %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
 
-        {% include "DWMSBarcodeScanner.html" %}
-
-
+            {% include "DWMSBarcodeScanner.html" %}
+    {% endblock %}
+    {% block script %}
         <script src="{% static 'SAIApp/js/barcodeScanner.js' %}"></script>
         <script type="text/javascript">
             // Scanner buttons logic
@@ -93,5 +93,5 @@
                 location.href = "{% url 'SAIApp:DWMSDespacho' %}";
             })
         </script>
-    {% endif %}
-{% endblock %}
+    {% endblock %}
+{% endif %}

@@ -113,18 +113,18 @@ def DWMSDespachoAgregarGuia(request, despacho_id):
         form = FormGuiaDespachada(request.POST)
         files = request.FILES.getlist('filepond')
         if form.is_valid():
-            dwms_guia_desp = form.save(commit=False)
-            dwms_guia_desp.current_user = request.user
-            dwms_guia_desp.save()
+            guia_desp = form.save(commit=False)
+            guia_desp.current_user = request.user
+            guia_desp.save()
 
             for file in files:
                 dwms_foto_guia_desp.objects.create(
-                    guia_desp=dwms_guia_desp,
+                    guia_desp=guia_desp,
                     foto=file
                 )
 
             messages.success(request, "Guía guardada")
-            print("Success, saved as " + str(dwms_guia_desp.pk))
+            print("Success, saved as " + str(guia_desp.pk))
 
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'despacho_id': despacho.pk})
@@ -144,5 +144,18 @@ def DWMSDespachoAgregarGuia(request, despacho_id):
     return render(request, 'SAIApp/DWMSDespachoAgregarGuia.html', context=context)
 
 
+def DWMSDespachoVerGuia(request, guia_desp_id):
+    guia_desp = dwms_guia_desp.objects.get(pk=guia_desp_id)
+    fotos = dwms_foto_guia_desp.objects.filter(guia_desp=guia_desp)
+    context = {
+        'guia_desp': guia_desp,
+        'fotos': fotos,
+    }
+    return render(request, 'SAIApp/DWMSDespachoVerGuia.html', context=context)
+
+    pass
+
 def DWMSRecepcion(request):
     return render(request, 'SAIApp/DWMSRecepcion.html')
+
+
