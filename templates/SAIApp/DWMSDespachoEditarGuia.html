@@ -21,11 +21,11 @@
                         <label for="id_ot_transporte" class="control-label">{{ form.folio.label }}</label>
                         <div class="input-group">
                             <div class="input-group-btn">
-                                <button type="button" class="btn btn-secondary" role="button" id="btn_scan_folio" data-toggle="modal" data-target="#scanner_modal"><span class="glyphicon glyphicon-barcode" aria-hidden="true"></span></button>
+                                <button class="btn btn-secondary" id="btn_scan_folio" data-toggle="modal" data-target="#scanner_modal"><span class="glyphicon glyphicon-barcode" aria-hidden="true"></span></button>
                             </div>
                             {{ form.folio }}
                             <div class="input-group-btn">
-                                <button type="button" class="btn btn-default" role="button" id="btn_clean_folio"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                                <button class="btn btn-default" id="btn_clean_folio"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
                             </div>
                         </div>
                     </div>
@@ -71,11 +71,16 @@
                 <div class="panel-body">
                     <div class="row">
                         {% for foto in fotos %}
-                            <div class="col-sm-6 col-md-4">
-                                <button class="thumbnail foto-thumbnail" data-toggle="modal" data-target="#fotoModal"
-                                        data-url="{{ foto.foto.url }}">
-                                    <img src="{{ foto.foto.url }}" alt="banana">
-                                </button>
+                            <div class="col-sm-6 col-md-4" id="foto_{{ foto.pk }}">
+                                <div class="thumbnail">
+                                    <a class="foto-thumbnail" data-toggle="modal" data-target="#fotoModal"
+                                            data-url="{{ foto.foto.url }}">
+                                        <img src="{{ foto.foto.url }}" alt="banana">
+                                    </a>
+                                    <div class="caption text-center">
+                                        <p><button class="btn btn-danger delete-foto" data-id="{{ foto.pk }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp Borrar foto</button></p>
+                                    </div>
+                                </div>
                             </div>
                         {% endfor %}
 
@@ -90,7 +95,7 @@
                             <img src="" alt="Foto despacho" class="img-responsive">
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button class="btn btn-default" data-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
                 </div>
@@ -156,6 +161,39 @@
                     button.addEventListener('click', function() {
                         var url = button.getAttribute('data-url');
                         modalImg.setAttribute('src', url);
+                    });
+                });
+
+                document.querySelectorAll(".delete-foto").forEach(button => {
+                    button.addEventListener("click", async function () {
+                        let fotoId = this.getAttribute("data-id");
+                        let div = document.getElementById(`foto_${fotoId}`);
+
+                        if (!confirm("¿Desea eliminar esta foto?")) return;
+
+                        try {
+                            let response = await fetch(`/SAIApp/DWMSDespachoEliminarFotoGuia/${fotoId}`, {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRFToken": "{{ csrf_token }}",
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({})
+                            });
+
+                            console.log(response)
+                            let result = await response.json();
+                            console.log(result)
+                            if (result.success) {
+                                div.classList.add("hidden")
+                                alert("Se ha eliminado la foto.")
+                            } else {
+                                alert("Error: " + result.error);
+                            }
+                        } catch (error) {
+                            console.error("Error al borrar foto:", error);
+                            alert("No se pudo eliminar la foto.");
+                        }
                     });
                 });
 
