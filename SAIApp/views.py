@@ -159,6 +159,59 @@ def DWMSDespachoVerGuia(request, guia_desp_id):
     return render(request, 'SAIApp/DWMSDespachoVerGuia.html', context=context)
 
 
+def DWMSDespachoEditarGuia(request, guia_desp_id):
+    guia_desp = dwms_guia_desp.objects.get(pk=guia_desp_id)
+    fotos = dwms_foto_guia_desp.objects.filter(guia_desp=guia_desp)
+
+    if request.method == 'POST':
+        form = FormGuiaDespachada(request.POST, instance=guia_desp)
+        files = request.FILES.getlist('filepond')
+
+        if form.is_valid():
+            guia_header = form.guia_header
+
+            if dwms_guia_desp.objects.filter(guia_header=guia_header).exclude(despacho=guia_desp.despacho).exists():
+                form.add_error('folio', "El folio " + str(guia_header.folio) + " ya está asignado a otro despacho.")
+                return JsonResponse({'errors': form.errors}, status=400)
+
+            guia_desp = form.save(commit=False)
+            guia_desp.current_user = request.user
+            guia_desp.save()
+
+            for file in files:
+                dwms_foto_guia_desp.objects.create(
+                    guia_desp=guia_desp,
+                    foto=file
+                )
+
+            messages.success(request, "Guía guardada")
+            print("Success, saved as " + str(guia_desp.pk))
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'despacho_id': guia_desp.despacho.pk})
+
+            return redirect('SAIApp:DWMSDespachoDetalle', despacho_id=guia_desp.despacho.pk)
+
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        data = {
+            'folio': guia_desp.guia_header.folio,
+            'ot_transporte': guia_desp.ot_transporte,
+            'nota': guia_desp.nota,
+            'despacho': guia_desp.despacho,
+        }
+        form = FormGuiaDespachada(data)
+
+    context = {
+        'guia_desp': guia_desp,
+        'fotos': fotos,
+        'form': form,
+    }
+    return render(request, 'SAIApp/DWMSDespachoEditarGuia.html', context=context)
+
+
 def DWMSRecepcion(request):
     return render(request, 'SAIApp/DWMSRecepcion.html')
 

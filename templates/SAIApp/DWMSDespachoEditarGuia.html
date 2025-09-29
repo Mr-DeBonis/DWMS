@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+{% if user.is_authenticated %}
+    {% block head %}
+        <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet"/>
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    {% endblock %}
+    {% block content %}
+        <div class="page-header">
+            <h2>Editar Guía Despachada</h2>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos de la guía</h3>
+            </div>
+            <div class="panel-body">
+                <form method="POST" action="{% url 'SAIApp:DWMSDespachoEditarGuia' guia_desp_id=guia_desp.pk %}" id="postForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_ot_transporte" class="control-label">{{ form.folio.label }}</label>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-secondary" role="button" id="btn_scan_folio" data-toggle="modal" data-target="#scanner_modal"><span class="glyphicon glyphicon-barcode" aria-hidden="true"></span></button>
+                            </div>
+                            {{ form.folio }}
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" role="button" id="btn_clean_folio"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_ot_transporte" class="control-label">{{ form.ot_transporte.label }}</label>
+                        {{ form.ot_transporte }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_nota" class="control-label">{{ form.nota.label }}</label>
+                        {{ form.nota }}
+                    </div>
+                    {{ form.despacho }}
+                    <div class="form-group">
+                        <label for="filepond" class="control-label">Fotos</label>
+                        <p class="help-block">Cargue hasta 3 fotos en formato .jpg/.png</p>
+                        <input type="file"
+                               class="filepond"
+                               name="filepond"
+                               id="filepond"
+                               multiple
+                               accept="image/*,application/pdf"/>
+                    </div>
+
+                    <div id="errorsContainer">
+                        {% if form.errors %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    {{ error|escape }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <button type="submit" id="saveBtn" class="btn btn-primary btn-block" ><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp Guardar</button>
+                </form>
+            </div>
+
+        </div>
+        {% if fotos %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Fotos de la Guía</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        {% for foto in fotos %}
+                            <div class="col-sm-6 col-md-4">
+                                <button class="thumbnail foto-thumbnail" data-toggle="modal" data-target="#fotoModal"
+                                        data-url="{{ foto.foto.url }}">
+                                    <img src="{{ foto.foto.url }}" alt="banana">
+                                </button>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="fotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img src="" alt="Foto despacho" class="img-responsive">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% include "DWMSBarcodeScanner.html" %}
+        <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespachoDetalle' guia_desp.despacho.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+    {% endblock %}
+
+    {% block script %}
+        <script src="{% static 'SAIApp/js/filepond.js' %}"></script>
+
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+        <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+        <script src="{% static 'SAIApp/js/barcodeScanner.js' %}"></script>
+        <script type="text/javascript">
+            const transformedFilesMap = new Map();
+
+            document.addEventListener('FilePond:preparefile', (e) => {
+                console.log("Archivo preparado", e.detail);
+            });
+
+            /////////////////////////////////////////////////////
+            // Scanner buttons logic
+            const scanButtons = {
+                "btn_scan_folio": "id_folio",
+            };
+
+            Object.entries(scanButtons).forEach(([buttonId, fieldId]) => {
+                document.getElementById(buttonId)?.addEventListener("click", () => {
+                    fieldToFill = document.getElementById(fieldId);
+                    startScanning();
+                });
+            });
+
+            // Clear buttons logic
+            const clearButtons = {
+                "btn_clean_folio": ["id_folio", []],
+            };
+
+            Object.entries(clearButtons).forEach(([buttonId, [fieldId, panelIds]]) => {
+                document.getElementById(buttonId)?.addEventListener("click", () => {
+                    {# document.getElementById(fieldId).submit(); #}
+                    document.getElementById(fieldId).value = "";
+                    panelIds.forEach(panelId => {
+                        document.getElementById(panelId).classList.add("hidden");
+                    });
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Modal logic
+                var modal = document.getElementById('fotoModal');
+                var modalImg = modal.querySelector('.modal-body img');
+
+                var thumbnails = document.querySelectorAll('.foto-thumbnail');
+
+                thumbnails.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        var url = button.getAttribute('data-url');
+                        modalImg.setAttribute('src', url);
+                    });
+                });
+
+                // Filepond logic
+                const pond = createFilepondElement();
+
+                document.addEventListener('submit', function (e) {
+                    if (e.target && e.target.id === 'postForm') {
+                        e.preventDefault();
+                        const form = e.target;
+
+                        let formData = new FormData(form);
+
+                        // Add FilePond files
+                        pond.getFiles().forEach((fileItem) => {
+                            const transformed = transformedFilesMap.get(fileItem.id);
+                            formData.append('filepond', transformed);
+                        });
+
+                        fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                return response.json().then(data => {
+                                    showFormErrors(data.errors);
+                                    throw new Error('Validation error');
+                                });
+                            }
+                        })
+                        .then(data => {
+                            // success
+                            window.location.href = `/SAIApp/DWMSDespachoDetalle/${data.despacho_id}`;
+                        })
+                }
+           });
+        });
+
+        function showFormErrors(errors) {
+            document.querySelectorAll('.field-error').forEach(el => el.remove());
+            document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+
+            let firstErrorField = null;
+
+            for (const [field, fieldErrors] of Object.entries(errors)) {
+                const input = document.querySelector(`[name="${field}"]`);
+                if (input) {
+                    const formGroup = input.closest('.form-group');
+                    if (formGroup) {
+                        formGroup.classList.add('has-error');
+
+                        fieldErrors.forEach(msg => {
+                            const errorSpan = document.createElement('span');
+                            errorSpan.className = 'help-block field-error';
+                            errorSpan.innerText = msg;
+                            formGroup.appendChild(errorSpan);
+                        });
+                    }
+
+                    if (!firstErrorField) {
+                        firstErrorField = input;
+                    }
+                } else {
+                    const errorsContainer = document.getElementById('errorsContainer');
+                    errorsContainer.innerHTML = '';
+
+                    fieldErrors.forEach(msg => {
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-danger alert-dismissible field-error';
+                        alert.innerText = msg;
+                        errorsContainer.appendChild(alert);
+                    });
+                }
+            }
+
+            if (firstErrorField) {
+                firstErrorField.focus();
+            }
+        }
+        </script>
+    {% endblock %}
+{% endif %}
