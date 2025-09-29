@@ -137,7 +137,7 @@ def dwms_foto_guia_desp_path(instance, filename):
 
 
 class dwms_foto_guia_desp(models.Model):
-    guia_desp = models.ForeignKey(dwms_guia_desp, on_delete=models.PROTECT)
+    guia_desp = models.ForeignKey(dwms_guia_desp, on_delete=models.CASCADE)
     foto = models.ImageField(upload_to=dwms_foto_guia_desp_path)
 
     class Meta:

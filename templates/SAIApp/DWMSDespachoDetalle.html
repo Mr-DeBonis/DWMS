@@ -47,14 +47,14 @@
                         </div>
                         <ul class="list-group">
                             {% for guia in guias %}
-                                <li class="list-group-item lh-sm">
+                                <li class="list-group-item lh-sm" id="guia_{{ guia.id }}">
                                     <div class="pull-left">
                                         <h6>{{ guia.guia_header.folio }}</h6>
                                     </div>
                                     <div class="pull-right">
-                                        <a href="#" role="button"  class="btn btn-danger">
+                                        <button data-id="{{ guia.id }}" class="btn btn-danger delete-guia">
                                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </a>
+                                        </button>
                                         <a href="{% url 'SAIApp:DWMSDespachoEditarGuia' guia.pk %}" role="button" class="btn btn-warning">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                         </a>
@@ -97,7 +97,7 @@
                             <img src="" alt="Foto despacho" class="img-responsive">
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                            <button class="btn btn-default" data-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
                 </div>
@@ -120,6 +120,40 @@
                         modalImg.setAttribute('src', url);
                     });
                 });
+
+                document.querySelectorAll(".delete-guia").forEach(button => {
+                    button.addEventListener("click", async function () {
+                        let guiaId = this.getAttribute("data-id");
+                        let guiaDiv = document.getElementById(`guia_${guiaId}`);
+
+                        if (!confirm("¿Desea eliminar esta guía?")) return;
+
+                        try {
+                            let response = await fetch(`/SAIApp/DWMSDespachoEliminarGuia/${guiaId}`, {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRFToken": "{{ csrf_token }}",
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({})
+                            });
+
+                            console.log(response)
+                            let result = await response.json();
+                            console.log(result)
+                            if (result.success) {
+                                guiaDiv.classList.add("hidden")
+                                alert("Se ha eliminado la guía.")
+                            } else {
+                                alert("Error: " + result.error);
+                            }
+                        } catch (error) {
+                            console.error("Error al borrar guía:", error);
+                            alert("No se pudo eliminar la guía.");
+                        }
+                    });
+                });
+
             });
         </script>
     {% endblock %}

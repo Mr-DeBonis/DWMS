@@ -212,19 +212,28 @@ def DWMSDespachoEditarGuia(request, guia_desp_id):
     return render(request, 'SAIApp/DWMSDespachoEditarGuia.html', context=context)
 
 
-def DWMSRecepcion(request):
-    return render(request, 'SAIApp/DWMSRecepcion.html')
+def DWMSDespachoEliminarGuia(request, guia_desp_id):
+    if request.method == 'POST':
+        try:
+            guia_desp = dwms_guia_desp.objects.get(pk=guia_desp_id)
+            print("Borrando guia " + str(guia_desp.pk))
+            guia_desp.delete()
+            return JsonResponse({"success": True})
+        except dwms_guia_desp.DoesNotExist:
+            pass
+    return JsonResponse({"error": "Petición inválida"}, status=400)
 
 
 def DWMSDespachoEliminarFotoGuia(request, foto_id):
     if request.method == 'POST':
         try:
             foto = dwms_foto_guia_desp.objects.get(pk=foto_id)
-            guia_desp = foto.guia_desp
-            print("Borrando foto " + str(foto.pk))
             foto.delete()
             return JsonResponse({"success": True})
         except dwms_foto_guia_desp.DoesNotExist:
             pass
     return JsonResponse({"error": "Petición inválida"}, status=400)
-    return redirect('SAIApp:DWMSDespachoEditarGuia', guia_desp.pk)#redirect('SAIApp:DWMSDespachoEditarGuia', guia_desp.pk)
+
+
+def DWMSRecepcion(request):
+    return render(request, 'SAIApp/DWMSRecepcion.html')
