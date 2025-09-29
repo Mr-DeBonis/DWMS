@@ -112,7 +112,12 @@ def DWMSDespachoAgregarGuia(request, despacho_id):
     if request.method == 'POST':
         form = FormGuiaDespachada(request.POST)
         files = request.FILES.getlist('filepond')
+
         if form.is_valid():
+            guia_header = form.guia_header
+            if dwms_guia_desp.objects.filter(guia_header=guia_header).exists():
+                form.add_error('folio', "El folio " + str(guia_header.folio) + " ya está asignado a un despacho.")
+                return JsonResponse({'errors': form.errors}, status=400)
             guia_desp = form.save(commit=False)
             guia_desp.current_user = request.user
             guia_desp.save()
@@ -153,7 +158,6 @@ def DWMSDespachoVerGuia(request, guia_desp_id):
     }
     return render(request, 'SAIApp/DWMSDespachoVerGuia.html', context=context)
 
-    pass
 
 def DWMSRecepcion(request):
     return render(request, 'SAIApp/DWMSRecepcion.html')

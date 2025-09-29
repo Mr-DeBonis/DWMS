@@ -112,8 +112,6 @@ class FormGuiaDespachada(forms.ModelForm):
             raise forms.ValidationError("No hay una guía asociada a ese folio")
 
         if guia_header:
-            if dwms_guia_desp.objects.filter(guia_header=guia_header).exists():
-                raise forms.ValidationError("El folio " + str(folio) + " ya está asignado a otro despacho.")
             if not dwms_g_c_salida.objects.filter(header=guia_header).exists():
                 raise forms.ValidationError("El folio " + str(folio) + " no ha pasado por control de salida.")
 
