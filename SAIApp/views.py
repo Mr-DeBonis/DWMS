@@ -144,6 +144,19 @@ def DWMSDespachoEditar(request, despacho_id):
     }
     return render(request, 'SAIApp/DWMSDespachoEditar.html', context=context)
 
+def DWMSDespachoEliminarFotoDespacho(request, foto_id):
+    if request.method == 'POST':
+        try:
+            foto = dwms_foto_despacho.objects.get(pk=foto_id)
+            despacho = foto.despacho
+            despacho.current_user = request.user
+            despacho.save()
+            foto.delete()
+            return JsonResponse({"success": True})
+        except dwms_foto_guia_desp.DoesNotExist:
+            pass
+    return JsonResponse({"error": "Petición inválida"}, status=400)
+
 
 def DWMSDespachoAgregarGuia(request, despacho_id):
     despacho = dwms_despacho.objects.get(pk=despacho_id)

@@ -18,6 +18,7 @@ urlpatterns = [
     path('DWMSDespachoEditarGuia/<guia_desp_id>', views.DWMSDespachoEditarGuia, name='DWMSDespachoEditarGuia'),
     path('DWMSDespachoEliminarGuia/<guia_desp_id>', views.DWMSDespachoEliminarGuia, name='DWMSDespachoEliminarGuia'),
     path('DWMSDespachoEliminarFotoGuia/<foto_id>', views.DWMSDespachoEliminarFotoGuia, name='DWMSDespachoEliminarFotoGuia'),
+    path('DWMSDespachoEliminarFotoDespacho/<foto_id>', views.DWMSDespachoEliminarFotoDespacho, name='DWMSDespachoEliminarFotoDespacho'),
     path('DWMSRecepcion/', views.DWMSRecepcion, name='DWMSRecepcion'),
 
 ]
