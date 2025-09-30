@@ -146,18 +146,45 @@
             });
 
             function showFormErrors(errors) {
-                // clear existing alerts
-                const errorsContainer = document.getElementById('errorsContainer');
-                errorsContainer.innerHTML = '';
+                document.querySelectorAll('.field-error').forEach(el => el.remove());
+                document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
 
-                // field-specific errors
+                let firstErrorField = null;
+
                 for (const [field, fieldErrors] of Object.entries(errors)) {
-                    fieldErrors.forEach(msg => {
-                        const alert = document.createElement('div');
-                        alert.className = 'alert alert-danger alert-dismissible';
-                        alert.innerText = msg;
-                        errorsContainer.appendChild(alert);
-                    });
+                    const input = document.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        const formGroup = input.closest('.form-group');
+                        if (formGroup) {
+                            formGroup.classList.add('has-error');
+
+
+                            fieldErrors.forEach(msg => {
+                                const errorSpan = document.createElement('span');
+                                errorSpan.className = 'help-block field-error';
+                                errorSpan.innerText = msg;
+                                formGroup.appendChild(errorSpan);
+                            });
+                        }
+
+                        if (!firstErrorField) {
+                            firstErrorField = input;
+                        }
+                    } else {
+                        const errorsContainer = document.getElementById('errorsContainer');
+                        errorsContainer.innerHTML = '';
+
+                        fieldErrors.forEach(msg => {
+                            const alert = document.createElement('div');
+                            alert.className = 'alert alert-danger alert-dismissible field-error';
+                            alert.innerText = msg;
+                            errorsContainer.appendChild(alert);
+                        });
+                    }
+                }
+
+                if (firstErrorField) {
+                    firstErrorField.focus();
                 }
             }
         </script>

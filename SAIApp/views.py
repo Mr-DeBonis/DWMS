@@ -220,7 +220,7 @@ def DWMSDespachoEliminarGuia(request, guia_desp_id):
         messages.success(request, "La guía folio " + str(guia_desp.guia_header.folio) + " ha sido borrada")
         return redirect('SAIApp:DWMSDespachoDetalle', guia_desp.despacho.pk)
     except dwms_guia_desp.DoesNotExist:
-        messages.error(request, "Estas guía no existe")
+        messages.error(request, "Esta guía no existe")
         return redirect('SAIApp:DWMSDespacho')
 
 
@@ -237,3 +237,5 @@ def DWMSDespachoEliminarFotoGuia(request, foto_id):
 
 def DWMSRecepcion(request):
     return render(request, 'SAIApp/DWMSRecepcion.html')
+
+
