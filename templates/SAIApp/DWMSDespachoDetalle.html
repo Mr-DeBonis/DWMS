@@ -45,8 +45,9 @@
                         <div class="panel-heading">
                             <h3 class="panel-title">Guías Asociadas</h3>
                         </div>
-                        <ul class="list-group">
+                        <div class="list-group">
                             {% for guia in guias %}
+                                {% comment %}
                                 <li class="list-group-item lh-sm" id="guia_{{ guia.id }}">
                                     <div class="pull-left">
                                         <h6>{{ guia.guia_header.folio }}</h6>
@@ -59,16 +60,27 @@
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                         </a>
                                         <a href="{% url 'SAIApp:DWMSDespachoVerGuia' guia.pk %}" role="button" class="btn btn-default">
-                                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
                                         </a>
                                     </div>
                                     <div class="clearfix"></div>
                                 </li>
+                                {% endcomment %}
+
+                                <a href="{% url 'SAIApp:DWMSDespachoVerGuia' guia.pk %}" class="list-group-item lh-sm" id="guia_{{ guia.id }}">
+                                    <div class="pull-left">
+                                        <p class="list-group-item-text">{{ guia.guia_header.folio }}</p>
+                                    </div>
+                                    <div class="pull-right">
+                                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </a>
                             {% endfor %}
-                            <li class="list-group-item">
-                                <a class="btn btn-primary btn-block" role="button" href="{% url 'SAIApp:DWMSDespachoAgregarGuia' despacho.pk %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp Agregar guía</a>
-                            </li>
-                        </ul>
+                            <a class="list-group-item text-center active" href="{% url 'SAIApp:DWMSDespachoAgregarGuia' despacho.pk %}">
+                                <h4 class="list-group-item-heading"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp Agregar guía</h4>
+                            </a>
+                        </div>
                     </div>
                 </div>
         </div>
@@ -120,40 +132,6 @@
                         modalImg.setAttribute('src', url);
                     });
                 });
-
-                document.querySelectorAll(".delete-guia").forEach(button => {
-                    button.addEventListener("click", async function () {
-                        let guiaId = this.getAttribute("data-id");
-                        let guiaDiv = document.getElementById(`guia_${guiaId}`);
-
-                        if (!confirm("¿Desea eliminar esta guía?")) return;
-
-                        try {
-                            let response = await fetch(`/SAIApp/DWMSDespachoEliminarGuia/${guiaId}`, {
-                                method: "POST",
-                                headers: {
-                                    "X-CSRFToken": "{{ csrf_token }}",
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({})
-                            });
-
-                            console.log(response)
-                            let result = await response.json();
-                            console.log(result)
-                            if (result.success) {
-                                guiaDiv.classList.add("hidden")
-                                alert("Se ha eliminado la guía.")
-                            } else {
-                                alert("Error: " + result.error);
-                            }
-                        } catch (error) {
-                            console.error("Error al borrar guía:", error);
-                            alert("No se pudo eliminar la guía.");
-                        }
-                    });
-                });
-
             });
         </script>
     {% endblock %}

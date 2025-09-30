@@ -69,7 +69,18 @@
                 </div>
             </div>
         {% endif %}
-        <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespachoDetalle' guia_desp.despacho.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+
+        <div class="row ">
+            <div class="col-xs-4 text-left">
+                <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSDespachoDetalle' guia_desp.despacho.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp;Atrás</a>
+            </div>
+            <div class="col-xs-4 text-center">
+                <button class="btn btn-danger btn-lg delete-guia"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;Eliminar</button>
+            </div>
+            <div class="col-xs-4 text-right">
+                <a href="{% url 'SAIApp:DWMSDespachoEditarGuia' guia_desp.pk %}" role="button" class="btn btn-warning btn-lg"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;Editar</a>
+            </div>
+        </div>
     {% endblock %}
     {% block script %}
         <script type="text/javascript">
@@ -83,6 +94,13 @@
                     button.addEventListener('click', function() {
                         var url = button.getAttribute('data-url');
                         modalImg.setAttribute('src', url);
+                    });
+                });
+
+                document.querySelectorAll(".delete-guia").forEach(button => {
+                    button.addEventListener("click", async function () {
+                        if (!confirm("¿Desea eliminar esta guía?")) return;
+                        window.location.href = `{% url 'SAIApp:DWMSDespachoEliminarGuia' guia_desp.pk %}`;
                     });
                 });
             });

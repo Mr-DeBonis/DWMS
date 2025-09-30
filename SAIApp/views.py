@@ -213,15 +213,15 @@ def DWMSDespachoEditarGuia(request, guia_desp_id):
 
 
 def DWMSDespachoEliminarGuia(request, guia_desp_id):
-    if request.method == 'POST':
-        try:
-            guia_desp = dwms_guia_desp.objects.get(pk=guia_desp_id)
-            print("Borrando guia " + str(guia_desp.pk))
-            guia_desp.delete()
-            return JsonResponse({"success": True})
-        except dwms_guia_desp.DoesNotExist:
-            pass
-    return JsonResponse({"error": "Petición inválida"}, status=400)
+    try:
+        guia_desp = dwms_guia_desp.objects.get(pk=guia_desp_id)
+        print("Borrando guia " + str(guia_desp.pk))
+        guia_desp.delete()
+        messages.success(request, "La guía folio " + str(guia_desp.guia_header.folio) + " ha sido borrada")
+        return redirect('SAIApp:DWMSDespachoDetalle', guia_desp.despacho.pk)
+    except dwms_guia_desp.DoesNotExist:
+        messages.error(request, "Estas guía no existe")
+        return redirect('SAIApp:DWMSDespacho')
 
 
 def DWMSDespachoEliminarFotoGuia(request, foto_id):
