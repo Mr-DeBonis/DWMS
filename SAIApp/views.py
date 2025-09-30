@@ -106,6 +106,45 @@ def DWMSDespachoDetalle(request, despacho_id):
     return render(request, 'SAIApp/DWMSDespachoDetalle.html', context=context)
 
 
+def DWMSDespachoEditar(request, despacho_id):
+    despacho = dwms_despacho.objects.get(pk=despacho_id)
+    fotos = dwms_foto_despacho.objects.filter(despacho=despacho)
+
+    if request.method == 'POST':
+        form = FormDespacho(request.POST, instance=despacho)
+        files = request.FILES.getlist('filepond')
+
+        if form.is_valid():
+            despacho = form.save(commit=False)
+            despacho.current_user = request.user
+            despacho.save()
+
+            for file in files:
+                dwms_foto_despacho.objects.create(
+                    despacho=despacho,
+                    foto=file
+                )
+
+            messages.success(request, "Despacho guardado")
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'despacho_id': despacho.pk})
+
+            return redirect('SAIApp:DWMSDespachoDetalle', despacho_id=despacho.pk)
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = FormDespacho(instance=despacho)
+
+    context = {
+        'despacho': despacho,
+        'form': form,
+        'fotos': fotos,
+    }
+    return render(request, 'SAIApp/DWMSDespachoEditar.html', context=context)
+
+
 def DWMSDespachoAgregarGuia(request, despacho_id):
     despacho = dwms_despacho.objects.get(pk=despacho_id)
 
@@ -196,13 +235,7 @@ def DWMSDespachoEditarGuia(request, guia_desp_id):
             print(form.errors)
             return JsonResponse({'errors': form.errors}, status=400)
     else:
-        data = {
-            'folio': guia_desp.guia_header.folio,
-            'ot_transporte': guia_desp.ot_transporte,
-            'nota': guia_desp.nota,
-            'despacho': guia_desp.despacho,
-        }
-        form = FormGuiaDespachada(data)
+        form = FormGuiaDespachada(instance=guia_desp)
 
     context = {
         'guia_desp': guia_desp,

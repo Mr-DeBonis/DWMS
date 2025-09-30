@@ -47,26 +47,6 @@
                         </div>
                         <div class="list-group">
                             {% for guia in guias %}
-                                {% comment %}
-                                <li class="list-group-item lh-sm" id="guia_{{ guia.id }}">
-                                    <div class="pull-left">
-                                        <h6>{{ guia.guia_header.folio }}</h6>
-                                    </div>
-                                    <div class="pull-right">
-                                        <button data-id="{{ guia.id }}" class="btn btn-danger delete-guia">
-                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </button>
-                                        <a href="{% url 'SAIApp:DWMSDespachoEditarGuia' guia.pk %}" role="button" class="btn btn-warning">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                        </a>
-                                        <a href="{% url 'SAIApp:DWMSDespachoVerGuia' guia.pk %}" role="button" class="btn btn-default">
-                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                                        </a>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </li>
-                                {% endcomment %}
-
                                 <a href="{% url 'SAIApp:DWMSDespachoVerGuia' guia.pk %}" class="list-group-item lh-sm" id="guia_{{ guia.id }}">
                                     <div class="pull-left">
                                         <p class="list-group-item-text">{{ guia.guia_header.folio }}</p>
@@ -123,7 +103,7 @@
                 <button class="btn btn-danger btn-lg delete-guia"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;Eliminar</button>
             </div>
             <div class="col-xs-4 text-right">
-                <a href="#" role="button" class="btn btn-warning btn-lg"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;Editar</a>
+                <a href="{% url 'SAIApp:DWMSDespachoEditar' despacho_id=despacho.pk %}" role="button" class="btn btn-warning btn-lg"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;Editar</a>
             </div>
         </div>
     {% endblock %}

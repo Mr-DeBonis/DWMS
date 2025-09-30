@@ -12,6 +12,7 @@ urlpatterns = [
     path('DWMSDespacho/', views.DWMSDespacho, name='DWMSDespacho'),
     path('DWMSDespachoIngresar/', views.DWMSDespachoIngresar, name='DWMSDespachoIngresar'),
     path('DWMSDespachoDetalle/<despacho_id>', views.DWMSDespachoDetalle, name='DWMSDespachoDetalle'),
+    path('DWMSDespachoEditar/<despacho_id>', views.DWMSDespachoEditar, name='DWMSDespachoEditar'),
     path('DWMSDespachoAgregarGuia/<despacho_id>', views.DWMSDespachoAgregarGuia, name='DWMSDespachoAgregarGuia'),
     path('DWMSDespachoVerGuia/<guia_desp_id>', views.DWMSDespachoVerGuia, name='DWMSDespachoVerGuia'),
     path('DWMSDespachoEditarGuia/<guia_desp_id>', views.DWMSDespachoEditarGuia, name='DWMSDespachoEditarGuia'),
