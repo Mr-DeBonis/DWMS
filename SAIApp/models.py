@@ -87,7 +87,7 @@ def dwms_foto_despacho_path(instance, filename):
 
 
 class dwms_foto_despacho(models.Model):
-    despacho = models.ForeignKey(dwms_despacho, on_delete=models.PROTECT)
+    despacho = models.ForeignKey(dwms_despacho, on_delete=models.CASCADE)
     foto = models.ImageField(upload_to=dwms_foto_despacho_path)
 
     class Meta:
@@ -102,7 +102,7 @@ def dwms_foto_despacho_delete(sender, instance, **kwargs):
 
 class dwms_guia_desp(models.Model):
     guia_header = models.ForeignKey(dwms_guia_header, on_delete=models.PROTECT)
-    despacho = models.ForeignKey(dwms_despacho, on_delete=models.PROTECT)
+    despacho = models.ForeignKey(dwms_despacho, on_delete=models.CASCADE)
     ot_transporte = models.CharField(max_length=50, blank=True, null=True, verbose_name='Orden de Transporte')
     nota = models.CharField(max_length=255, blank=True, verbose_name="Notas")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')

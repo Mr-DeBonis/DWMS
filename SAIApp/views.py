@@ -144,6 +144,19 @@ def DWMSDespachoEditar(request, despacho_id):
     }
     return render(request, 'SAIApp/DWMSDespachoEditar.html', context=context)
 
+
+def DWMSDespachoEliminar(request, despacho_id):
+    print("hola")
+    try:
+        despacho = dwms_despacho.objects.get(pk=despacho_id)
+        print("Borrando despacho " + str(despacho.pk))
+        despacho.delete()
+        messages.success(request, "El despacho ha sido borrado")
+    except dwms_despacho.DoesNotExist:
+        messages.error(request, "Este despacho no existe")
+    finally:
+        return redirect('SAIApp:DWMSDespacho')
+
 def DWMSDespachoEliminarFotoDespacho(request, foto_id):
     if request.method == 'POST':
         try:
