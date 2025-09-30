@@ -121,6 +121,7 @@
     {% block script %}
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', function() {
+                {% if fotos %}
                 var modal = document.getElementById('fotoModal');
                 var modalImg = modal.querySelector('.modal-body img');
 
@@ -132,6 +133,7 @@
                         modalImg.setAttribute('src', url);
                     });
                 });
+                {% endif %}
             });
         </script>
     {% endblock %}

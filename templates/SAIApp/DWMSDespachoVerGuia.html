@@ -85,6 +85,7 @@
     {% block script %}
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', function() {
+                {% if fotos %}
                 var modal = document.getElementById('fotoModal');
                 var modalImg = modal.querySelector('.modal-body img');
 
@@ -96,6 +97,7 @@
                         modalImg.setAttribute('src', url);
                     });
                 });
+                {% endif %}
 
                 document.querySelectorAll(".delete-guia").forEach(button => {
                     button.addEventListener("click", async function () {
