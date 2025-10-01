@@ -20,7 +20,7 @@
                                 {% csrf_token %}
                                 <div class="input-group">
                                     <div class="input-group-btn">
-                                        <button type="button" class="btn btn-secondary" role="button"
+                                        <button type="button" class="btn btn-secondary"
                                                 id="btn_scan_folio" data-toggle="modal"
                                                 data-target="#scanner_modal"><span
                                                 class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
@@ -28,10 +28,10 @@
                                     </div>
                                     {{ form.folio }}
                                     <div class="input-group-btn">
-                                        <button type="button" class="btn btn-default" role="button"
-                                                id="btn_clean_folio"><span class="glyphicon glyphicon-remove"
-                                                                           aria-hidden="true"></span></button>
-                                        <button type="submit" class="btn btn-secondary" role="button"><span
+                                        <a href="{% url 'SAIApp:DWMSDespacho' %}" class="btn btn-default" role="button"><span
+                                                class="glyphicon glyphicon-remove"
+                                                aria-hidden="true"></span></a>
+                                        <button type="submit" class="btn btn-secondary"><span
                                                 class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                         </button>
                                     </div>
@@ -40,7 +40,7 @@
                         </div>
                         <div class="clearfix visible-xs-block"><br></div>
                         <div class="col-sm-4 col-md-3 col-lg-2">
-                            <a href="{% url 'SAIApp:DWMSDespachoIngresar' %}" class="btn btn-success btn-block"><i class="glyphicon glyphicon-plus"></i>&nbsp;Nuevo despacho</a>
+                            <a href="{% url 'SAIApp:DWMSDespachoIngresar' %}" class="btn btn-success btn-block" role="button"><i class="glyphicon glyphicon-plus"></i>&nbsp;Nuevo despacho</a>
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                             <td>{{ despacho.fecha_despacho }}</td>
                             <td>{{ despacho.transporte }}</td>
                             <td>{{ despacho.otro_transporte|default:"" }}</td>
-                            <td><a class="btn btn-primary btn-xs delete-bodega" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                            <td><a class="btn btn-primary btn-xs" href="{% url 'SAIApp:DWMSDespachoDetalle' despacho.pk %}" role="button"><i class="glyphicon glyphicon-eye-open"></i></a></td>
                             </tr>
                         {% empty %}
                         {% endfor %}
@@ -87,11 +87,6 @@
                     startScanning();
                 });
             });
-
-            // Clear button logic
-            document.getElementById("btn_clean_folio").addEventListener("click", ()=>{
-                location.href = "{% url 'SAIApp:DWMSDespacho' %}";
-            })
         </script>
     {% endblock %}
 {% endif %}
