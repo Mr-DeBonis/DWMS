@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 
 from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida, FormRecepcion
 from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp, dwms_recepcion, \
-    dwms_foto_recepcion
+    dwms_foto_recepcion, dwms_guia_recibida
 
 
 # Create your views here.
@@ -352,8 +352,17 @@ def DWMSRecepcionIngresar(request):
     return render(request, 'SAIApp/DWMSRecepcionIngresar.html', context=context)
 
 
-def DWMSRecepcionDetalle(request):
-    pass
+def DWMSRecepcionDetalle(request, recepcion_id):
+    recepcion = dwms_recepcion.objects.get(pk=recepcion_id)
+    fotos = dwms_foto_recepcion.objects.filter(recepcion=recepcion)
+    guias = dwms_guia_recibida.objects.filter(recepcion=recepcion)
+
+    context = {
+        'recepcion': recepcion,
+        'fotos': fotos,
+        'guias': guias,
+    }
+    return render(request, 'SAIApp/DWMSRecepcionDetalle.html', context=context)
 
 
 def DWMSRecepcionEditar(request, recepcion_id):
