@@ -22,6 +22,24 @@ class FormGuiaHeader(forms.ModelForm):
         }
 
 
+class FormGuiaHeaderRecibida(forms.Form):
+    folio = forms.IntegerField(
+        required= False,
+        widget = forms.NumberInput(attrs={
+                "placeholder": "Folio",
+                "class": "form-control",
+                "name": "folio",
+                "required min": "1",
+                "id": "id_folio",
+                "required": "true",
+            }),
+        label =  'Folio',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(FormGuiaHeaderRecibida, self).__init__(*args, **kwargs)
+
+
 class FormDespacho(forms.ModelForm):
     fecha_despacho = forms.DateTimeField(
         input_formats= ['%Y-%m-%dT%H:%M'],

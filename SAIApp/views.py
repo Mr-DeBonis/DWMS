@@ -4,8 +4,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
-from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada
-from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp
+from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida
+from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp, dwms_recepcion
 
 
 # Create your views here.
@@ -298,6 +298,60 @@ def DWMSDespachoEliminarFotoGuia(request, foto_id):
 
 
 def DWMSRecepcion(request):
-    return render(request, 'SAIApp/DWMSRecepcion.html')
+    recepciones = []
+    if request.method == "POST":
+        form = FormGuiaHeaderRecibida(request.POST)
+        if form.is_valid():
+            folio = form.cleaned_data['folio']
+            recepciones = dwms_recepcion.objects.filter(dwms_guia_recibida__folio=folio).order_by('-fecha_recepcion')
+            if len(recepciones) == 0:
+                messages.warning(request, "No se han encontrado recepciones asociadas")
+    else:
+        form = FormGuiaHeaderRecibida()
+        recepciones = dwms_recepcion.objects.all().order_by('-fecha_recepcion')
+
+    context = {
+        'form': form,
+        'recepciones': recepciones
+    }
+    return render(request, 'SAIApp/DWMSRecepcion.html', context=context)
 
 
+def DWMSRecepcionIngresar(request):
+    pass#return render(request, 'SAIApp/DWMSRecepcionIngresar.html')
+
+
+def DWMSRecepcionDetalle(request):
+    pass
+
+
+def DWMSRecepcionEditar(request, recepcion_id):
+    pass
+
+
+def DWMSRecepcionEliminar(request, recepcion_id):
+    pass
+
+
+def DWMSRecepcionAgregarGuia(request, recepcion_id):
+    pass
+
+
+def DWMSRecepcionVerGuia(request, guia_rec_id):
+    pass
+
+
+def DWMSRecepcionEditarGuia(request, guia_rec_id):
+    pass
+
+
+def DWMSRecepcionEliminarGuia(request, guia_rec_id):
+    pass
+
+
+def DWMSRecepcionEliminarFotoGuia(request, foto_id):
+    pass
+
+
+def DWMSRecepcionEliminarFoto(request, foto_id):
+    pass
