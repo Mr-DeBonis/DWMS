@@ -4,8 +4,9 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
-from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida
-from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp, dwms_recepcion
+from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida, FormRecepcion
+from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp, dwms_recepcion, \
+    dwms_foto_recepcion
 
 
 # Create your views here.
@@ -318,7 +319,37 @@ def DWMSRecepcion(request):
 
 
 def DWMSRecepcionIngresar(request):
-    pass#return render(request, 'SAIApp/DWMSRecepcionIngresar.html')
+    if request.method == 'POST':
+        form = FormRecepcion(request.POST)
+        files = request.FILES.getlist('filepond')
+        if form.is_valid():
+            recepcion = form.save(commit=False)
+            recepcion.current_user = request.user
+            recepcion.save()
+
+            for file in files:
+                dwms_foto_recepcion.objects.create(
+                    recepcion=recepcion,
+                    foto=file
+                )
+
+            messages.success(request, "Recepción guardada")
+            print("Success, saved as " + str(recepcion.pk))
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'recepcion_id': recepcion.pk})
+
+            return redirect('SAIApp:DWMSRecepcionDetalle', recepcion_id=recepcion.pk)
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = FormRecepcion()
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'SAIApp/DWMSRecepcionIngresar.html', context=context)
 
 
 def DWMSRecepcionDetalle(request):

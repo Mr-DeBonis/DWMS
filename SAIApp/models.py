@@ -168,7 +168,7 @@ class dwms_recepcion(models.Model):
     nota = models.CharField(max_length=255, blank=True, verbose_name="Notas")
     transporte = models.ForeignKey(dwms_transporte, verbose_name='Transporte', on_delete=models.PROTECT)
     otro_transporte = models.CharField(max_length=255, blank=True,null=True, verbose_name='Otro Transporte')
-    fecha_recepcion = models.DateTimeField(default=datetime.now, verbose_name='Fecha de recepción')
+    fecha_recepcion = models.DateTimeField(default=datetime.now, verbose_name='Fecha de Recepción')
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name='Fecha de Modificación')
     creacion_user = models.ForeignKey(User, verbose_name='Usuario de Creación', on_delete=models.PROTECT)

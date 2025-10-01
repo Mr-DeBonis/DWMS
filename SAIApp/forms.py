@@ -1,6 +1,7 @@
 from django import forms
 
-from SAIApp.models import dwms_guia_header, dwms_despacho, dwms_transporte, dwms_guia_desp, dwms_g_c_salida
+from SAIApp.models import dwms_guia_header, dwms_despacho, dwms_transporte, dwms_guia_desp, dwms_g_c_salida, \
+    dwms_recepcion
 
 
 class FormGuiaHeader(forms.ModelForm):
@@ -46,7 +47,8 @@ class FormDespacho(forms.ModelForm):
         widget=forms.DateTimeInput(attrs={
             'class': 'form-control',
             'type': 'datetime-local',
-        })
+        }),
+        label='Fecha de despacho'
     )
 
     class Meta:
@@ -142,3 +144,54 @@ class FormGuiaDespachada(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class FormRecepcion(forms.ModelForm):
+    fecha_recepcion = forms.DateTimeField(
+        input_formats= ['%Y-%m-%dT%H:%M'],
+        widget=forms.DateTimeInput(attrs={
+            'class': 'form-control',
+            'type': 'datetime-local',
+        }),
+        label = 'Fecha de recepción'
+    )
+
+    class Meta:
+        model = dwms_recepcion
+        fields = ['transporte', 'fecha_recepcion', 'nota', 'otro_transporte']
+
+        widgets = {
+            'transporte': forms.Select(attrs={
+                'class': 'form-control',
+                'queryset': dwms_transporte.objects.filter(activo=True),
+                'empty_label': None,
+            }),
+            'otro_transporte': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'nota': forms.Textarea(attrs={
+                'rows': 3,
+                'autocorrect': 'on',
+                'maxlength': 255,
+                'style': 'resize:vertical',
+                'class': 'form-control',
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(FormRecepcion, self).__init__(*args, **kwargs)
+        self.fields['transporte'].queryset = dwms_transporte.objects.filter(activo=True)
+        self.fields['transporte'].empty_label = None
+
+    def clean(self):
+        cleaned_data = super(FormRecepcion, self).clean()
+        transporte = cleaned_data.get('transporte')
+        otro_transporte = cleaned_data.get('otro_transporte')
+
+        if transporte and transporte.nombre.strip().upper() == 'OTRO':
+            if not otro_transporte:
+                self.add_error('otro_transporte', 'Este campo es requerido cuando el transporte es OTRO.')
+        else:
+            cleaned_data['otro_transporte'] = ''
+
+        return cleaned_data
