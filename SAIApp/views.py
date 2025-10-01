@@ -147,7 +147,6 @@ def DWMSDespachoEditar(request, despacho_id):
 
 
 def DWMSDespachoEliminar(request, despacho_id):
-    print("hola")
     try:
         despacho = dwms_despacho.objects.get(pk=despacho_id)
         print("Borrando despacho " + str(despacho.pk))
@@ -405,7 +404,15 @@ def DWMSRecepcionEditar(request, recepcion_id):
 
 
 def DWMSRecepcionEliminar(request, recepcion_id):
-    pass
+    try:
+        recepcion = dwms_recepcion.objects.get(pk=recepcion_id)
+        print("Borrando recepcion " + str(recepcion.pk))
+        recepcion.delete()
+        messages.success(request, "La recepción ha sido borrada")
+    except dwms_recepcion.DoesNotExist:
+        messages.error(request, "Esta recepción no existe")
+    finally:
+        return redirect('SAIApp:DWMSRecepcion')
 
 
 def DWMSRecepcionAgregarGuia(request, recepcion_id):

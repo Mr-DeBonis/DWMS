@@ -201,7 +201,7 @@ def dwms_foto_recepcion_path(instance, filename):
 
 
 class dwms_foto_recepcion(models.Model):
-    recepcion = models.ForeignKey(dwms_recepcion, on_delete=models.PROTECT)
+    recepcion = models.ForeignKey(dwms_recepcion, on_delete=models.CASCADE)
     foto = models.ImageField(upload_to=dwms_foto_recepcion_path)
 
     class Meta:
@@ -253,7 +253,7 @@ def dwms_foto_guia_recibida_path(instance, filename):
 
 
 class dwms_foto_guia_recibida(models.Model):
-    guia_recibida = models.ForeignKey(dwms_guia_recibida, on_delete=models.PROTECT)
+    guia_recibida = models.ForeignKey(dwms_guia_recibida, on_delete=models.CASCADE)
     foto = models.ImageField(upload_to=dwms_foto_guia_recibida_path)
 
     class Meta:
