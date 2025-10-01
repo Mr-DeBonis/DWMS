@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 
 from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida, FormRecepcion
 from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp, dwms_recepcion, \
-    dwms_foto_recepcion, dwms_guia_recibida
+    dwms_foto_recepcion, dwms_guia_recibida, dwms_foto_guia_recibida
 
 
 # Create your views here.
@@ -429,4 +429,14 @@ def DWMSRecepcionEliminarFotoGuia(request, foto_id):
 
 
 def DWMSRecepcionEliminarFoto(request, foto_id):
-    pass
+    if request.method == 'POST':
+        try:
+            foto = dwms_foto_recepcion.objects.get(pk=foto_id)
+            recepcion = foto.recepcion
+            recepcion.current_user = request.user
+            recepcion.save()
+            foto.delete()
+            return JsonResponse({"success": True})
+        except dwms_foto_recepcion.DoesNotExist:
+            return JsonResponse({"error": "Esta foto no existe"})
+    return JsonResponse({"error": "Petición inválida"}, status=400)

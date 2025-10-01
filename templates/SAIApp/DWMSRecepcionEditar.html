@@ -103,7 +103,7 @@
                 </div>
             </div>
         {% endif %}
-        <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSRecepcionDetalle' recepcion.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+        <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSRecepcionDetalle' recepcion.pk %}" role="button"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
     {% endblock %}
     {% block script %}
     <script src="{% static 'SAIApp/js/filepond.js' %}"></script>
