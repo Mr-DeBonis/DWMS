@@ -366,7 +366,42 @@ def DWMSRecepcionDetalle(request, recepcion_id):
 
 
 def DWMSRecepcionEditar(request, recepcion_id):
-    pass
+    recepcion = dwms_recepcion.objects.get(pk=recepcion_id)
+    fotos = dwms_foto_recepcion.objects.filter(recepcion=recepcion)
+
+    if request.method == 'POST':
+        form = FormRecepcion(request.POST, instance=recepcion)
+        files = request.FILES.getlist('filepond')
+
+        if form.is_valid():
+            recepcion = form.save(commit=False)
+            recepcion.current_user = request.user
+            recepcion.save()
+
+            for file in files:
+                dwms_foto_recepcion.objects.create(
+                    recepcion=recepcion,
+                    foto=file
+                )
+
+            messages.success(request, "Recepción guardada")
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'recepcion_id': recepcion.pk})
+
+            return redirect('SAIApp:DWMSRecepcionDetalle', recepcion_id=recepcion.pk)
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = FormRecepcion(instance=recepcion)
+
+    context = {
+        'recepcion': recepcion,
+        'form': form,
+        'fotos': fotos,
+    }
+    return render(request, 'SAIApp/DWMSRecepcionEditar.html', context=context)
 
 
 def DWMSRecepcionEliminar(request, recepcion_id):

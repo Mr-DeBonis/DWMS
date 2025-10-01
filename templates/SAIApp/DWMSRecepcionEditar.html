@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+{% if user.is_authenticated %}
+    {% block head %}
+        <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet"/>
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    {% endblock %}
+    {% block content %}
+        <div class="page-header">
+            <h2>Editar Recepción</h2>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos de la Recepción</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{% url 'SAIApp:DWMSRecepcionEditar' recepcion_id=recepcion.pk %}" id="postForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_transporte" class="control-label">{{ form.transporte.label }}</label>
+                        {{ form.transporte }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_otro_transporte" class="control-label">{{ form.otro_transporte.label }}</label>
+                        {{ form.otro_transporte }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_fecha_recepcion" class="control-label">{{ form.fecha_recepcion.label }}</label>
+                        {{ form.fecha_recepcion }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_nota" class="control-label">{{ form.nota.label }}</label>
+                        {{ form.nota }}
+                    </div>
+                    <div class="form-group">
+                        <label for="filepond" class="control-label">Fotos</label>
+                        <p class="help-block">Cargue hasta 3 fotos en formato .jpg/.png</p>
+                        <input type="file"
+                               class="filepond"
+                               name="filepond"
+                               id="filepond"
+                               multiple
+                               accept="image/*,application/pdf"/>
+                    </div>
+
+                    <div id="errorsContainer">
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="alert alert-danger alert-dismissible" role="alert">
+                                        {{ error|escape }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    {{ error|escape }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" id="saveBtn" class="btn btn-primary btn-block" style="float: right;"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp Guardar</button>
+                </form>
+            </div>
+        </div>
+        {% if fotos %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Fotos de la recepción</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        {% for foto in fotos %}
+                            <div class="col-sm-6 col-md-4" id="foto_{{ foto.pk }}">
+                                <div class="thumbnail">
+                                    <a class="foto-thumbnail" data-toggle="modal" data-target="#fotoModal"
+                                            data-url="{{ foto.foto.url }}">
+                                        <img src="{{ foto.foto.url }}" alt="banana">
+                                    </a>
+                                    <div class="caption text-center">
+                                        <p><button class="btn btn-danger delete-foto" data-id="{{ foto.pk }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp Borrar foto</button></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="fotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img src="" alt="Foto recepción" class="img-responsive">
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSRecepcionDetalle' recepcion.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp Atrás</a>
+    {% endblock %}
+    {% block script %}
+    <script src="{% static 'SAIApp/js/filepond.js' %}"></script>
+
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+	<script type="text/javascript">
+        const transformedFilesMap = new Map();
+
+        document.addEventListener('FilePond:preparefile', (e) => {
+            console.log("Archivo preparado", e.detail);
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Otro transporte
+            const transporteSelect = document.getElementById('id_transporte');
+            const otroField = document.getElementById('id_otro_transporte').closest('.form-group');
+            const otroInput = document.getElementById('id_otro_transporte');
+
+            function toggleOtroField() {
+                const selectedText = transporteSelect.options[transporteSelect.selectedIndex].text;
+                if (selectedText.trim().toUpperCase() === 'OTRO') {
+                    otroField.classList.remove('hidden');
+                    otroInput.focus()
+                } else {
+                    otroField.classList.add('hidden');
+                    document.getElementById('id_otro_transporte').value = ''; // clear when hidden
+                }
+            }
+
+            transporteSelect.addEventListener('change', toggleOtroField);
+            toggleOtroField();
+
+            /////////////////////////////////////////////////////////
+            {% if fotos %}
+            // Modal logic
+            var modal = document.getElementById('fotoModal');
+            var modalImg = modal.querySelector('.modal-body img');
+
+            var thumbnails = document.querySelectorAll('.foto-thumbnail');
+
+            thumbnails.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var url = button.getAttribute('data-url');
+                    modalImg.setAttribute('src', url);
+                });
+            });
+
+            document.querySelectorAll(".delete-foto").forEach(button => {
+                button.addEventListener("click", async function () {
+                    let fotoId = this.getAttribute("data-id");
+                    let div = document.getElementById(`foto_${fotoId}`);
+
+                    if (!confirm("¿Desea eliminar esta foto?")) return;
+
+                    try {
+                        let response = await fetch(`/SAIApp/DWMSRecepcionEliminarFoto/${fotoId}`, {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({})
+                        });
+
+                        console.log(response)
+                        let result = await response.json();
+                        console.log(result)
+                        if (result.success) {
+                            div.classList.add("hidden")
+                            alert("Se ha eliminado la foto.")
+                        } else {
+                            alert("Error: " + result.error);
+                        }
+                    } catch (error) {
+                        console.error("Error al borrar foto:", error);
+                        alert("No se pudo eliminar la foto.");
+                    }
+                });
+            });
+            {% endif %}
+            /////////////////////////////////////////////////////////
+
+            const pond = createFilepondElement();
+            const form = document.getElementById('postForm');
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                let formData = new FormData(form);
+
+                pond.getFiles().forEach((fileItem) => {
+                    const transformed = transformedFilesMap.get(fileItem.id);
+                    formData.append('filepond', transformed);
+                })
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(data => {
+                                showFormErrors(data.errors);
+                                throw new Error('Validation error');
+                            });
+                        }
+                    })
+                    .then(data => {
+                        window.location.href = `/SAIApp/DWMSRecepcionDetalle/${data.recepcion_id}`;
+                    })
+                    .catch(error => {
+                        console.error('Error no esperado:', error);
+                    });
+            });
+        });
+
+        function showFormErrors(errors) {
+            document.querySelectorAll('.field-error').forEach(el => el.remove());
+            document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+
+            let firstErrorField = null;
+
+            for (const [field, fieldErrors] of Object.entries(errors)) {
+                const input = document.querySelector(`[name="${field}"]`);
+                if (input) {
+                    const formGroup = input.closest('.form-group');
+                    if (formGroup) {
+                        formGroup.classList.add('has-error');
+
+                        fieldErrors.forEach(msg => {
+                            const errorSpan = document.createElement('span');
+                            errorSpan.className = 'help-block field-error';
+                            errorSpan.innerText = msg;
+                            formGroup.appendChild(errorSpan);
+                        });
+                    }
+
+                    if (!firstErrorField) {
+                        firstErrorField = input;
+                    }
+                } else {
+                    const errorsContainer = document.getElementById('errorsContainer');
+                    errorsContainer.innerHTML = '';
+
+                    fieldErrors.forEach(msg => {
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-danger alert-dismissible field-error';
+                        alert.innerText = msg;
+                        errorsContainer.appendChild(alert);
+                    });
+                }
+            }
+
+            if (firstErrorField) {
+                firstErrorField.focus();
+            }
+        }
+
+    </script>
+    {% endblock %}
+{% endif %}
