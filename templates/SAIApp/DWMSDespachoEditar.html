@@ -164,7 +164,7 @@
                     if (!confirm("¿Desea eliminar esta foto?")) return;
 
                     try {
-                        let response = await fetch(`/SAIApp/DWMSDespachoEliminarFotoDespacho/${fotoId}`, {
+                        let response = await fetch(`/SAIApp/DWMSDespachoEliminarFoto/${fotoId}`, {
                             method: "POST",
                             headers: {
                                 "X-CSRFToken": "{{ csrf_token }}",

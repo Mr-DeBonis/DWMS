@@ -157,7 +157,7 @@ def DWMSDespachoEliminar(request, despacho_id):
     finally:
         return redirect('SAIApp:DWMSDespacho')
 
-def DWMSDespachoEliminarFotoDespacho(request, foto_id):
+def DWMSDespachoEliminarFoto(request, foto_id):
     if request.method == 'POST':
         try:
             foto = dwms_foto_despacho.objects.get(pk=foto_id)
