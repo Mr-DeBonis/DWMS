@@ -1,7 +1,7 @@
 from django import forms
 
 from SAIApp.models import dwms_guia_header, dwms_despacho, dwms_transporte, dwms_guia_desp, dwms_g_c_salida, \
-    dwms_recepcion
+    dwms_recepcion, dwms_guia_recibida
 
 
 class FormGuiaHeader(forms.ModelForm):
@@ -195,3 +195,35 @@ class FormRecepcion(forms.ModelForm):
             cleaned_data['otro_transporte'] = ''
 
         return cleaned_data
+
+
+class FormGuiaRecibida(forms.ModelForm):
+
+    class Meta:
+        model = dwms_guia_recibida
+        fields = ['ot_transporte', 'nota', 'recepcion', 'bultos', 'folio']
+        widgets = {
+            'folio': forms.NumberInput(attrs={
+                "placeholder": "Folio",
+                "class": "form-control",
+                "min": "1",
+                "required": "true"
+            }),
+            'ot_transporte': forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Orden de Transporte"
+            }),
+            'nota': forms.Textarea(attrs={
+                'rows': 3,
+                'autocorrect': 'on',
+                'maxlength': 255,
+                'style': 'resize:vertical',
+                'class': 'form-control',
+            }),
+            'bultos': forms.NumberInput(attrs={
+                'placeholder': 'Cantidad de bultos',
+                'class': 'form-control',
+                'required': 'true',
+            }),
+            'recepcion': forms.HiddenInput(),
+        }

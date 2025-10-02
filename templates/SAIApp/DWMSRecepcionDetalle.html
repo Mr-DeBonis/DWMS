@@ -49,7 +49,7 @@
                             {% for guia in guias %}
                                 <a href="{% url 'SAIApp:DWMSRecepcionVerGuia' guia.pk %}" class="list-group-item lh-sm" id="guia_{{ guia.id }}">
                                     <div class="pull-left">
-                                        <p class="list-group-item-text">{{ guia.guia_header.folio }}</p>
+                                        <p class="list-group-item-text">{{ guia.folio }}</p>
                                     </div>
                                     <div class="pull-right">
                                         <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>

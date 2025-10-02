@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 
-from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida, FormRecepcion
+from SAIApp.forms import FormGuiaHeader, FormDespacho, FormGuiaDespachada, FormGuiaHeaderRecibida, FormRecepcion, \
+    FormGuiaRecibida
 from SAIApp.models import dwms_despacho, dwms_foto_despacho, dwms_foto_guia_desp, dwms_guia_desp, dwms_recepcion, \
     dwms_foto_recepcion, dwms_guia_recibida, dwms_foto_guia_recibida
 
@@ -416,7 +417,41 @@ def DWMSRecepcionEliminar(request, recepcion_id):
 
 
 def DWMSRecepcionAgregarGuia(request, recepcion_id):
-    pass
+    recepcion = dwms_recepcion.objects.get(pk=recepcion_id)
+
+    if request.method == 'POST':
+        form = FormGuiaRecibida(request.POST)
+        files = request.FILES.getlist('filepond')
+
+        if form.is_valid():
+            guia_recibida = form.save(commit=False)
+            guia_recibida.current_user = request.user
+            guia_recibida.save()
+
+            for file in files:
+                dwms_foto_guia_recibida.objects.create(
+                    guia_recibida=guia_recibida,
+                    foto=file
+                )
+
+            messages.success(request, "Guía guardada")
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'recepcion_id': recepcion.pk})
+
+            return redirect('SAIApp:DWMSRecepcionDetalle', recepcion_id=recepcion.pk)
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+
+    else:
+        form = FormGuiaRecibida(initial={'recepcion': recepcion})
+
+    context = {
+        'recepcion': recepcion,
+        'form': form,
+    }
+    return render(request, 'SAIApp/DWMSRecepcionAgregarGuia.html', context=context)
 
 
 def DWMSRecepcionVerGuia(request, guia_rec_id):
