@@ -149,7 +149,7 @@ class dwms_foto_guia_desp(models.Model):
 def dwms_foto_guia_desp_delete(sender, instance, **kwargs):
     instance.foto.delete(False)
 
-
+'''
 # Proveedores
 class dwms_proveedor(models.Model):
     rut = models.CharField(max_length=30, blank=True, null=True, verbose_name='RUT')
@@ -161,6 +161,7 @@ class dwms_proveedor(models.Model):
 
     def __str__(self):
         return self.razon_social
+'''
 
 
 # Recepciones
@@ -218,13 +219,13 @@ class dwms_guia_recibida(models.Model):
     recepcion = models.ForeignKey(dwms_recepcion, on_delete=models.PROTECT)
     ot_transporte = models.CharField(max_length=50, blank=True, null=True, verbose_name='Orden de Transporte')
     nota = models.CharField(max_length=255, blank=True, verbose_name="Notas")
-    cantidad_bultos = models.IntegerField(blank=True, null=True, verbose_name='Cantidad de Bultos')
+    bultos = models.IntegerField(blank=True, null=True, verbose_name='Bultos')
     folio = models.IntegerField(blank=True, null=True, verbose_name='Folio')
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name='Fecha de Modificación')
     creacion_user = models.ForeignKey(User, verbose_name='Usuario de Creación', on_delete=models.PROTECT)
     mod_user = models.ForeignKey(User, related_name='mod_user_guia_recibida', verbose_name='Usuario de Modificación', on_delete=models.PROTECT)
-    proveedor = models.ForeignKey(dwms_proveedor, verbose_name='Proveedor', on_delete=models.PROTECT)
+    #proveedor = models.ForeignKey(dwms_proveedor, verbose_name='Proveedor', on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Guía recibida'
