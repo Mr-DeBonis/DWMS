@@ -505,7 +505,16 @@ def DWMSRecepcionEditarGuia(request, guia_rec_id):
 
 
 def DWMSRecepcionEliminarGuia(request, guia_rec_id):
-    pass
+    try:
+        guia_recibida = dwms_guia_recibida.objects.get(pk=guia_rec_id)
+        print("Borrando guia " + str(guia_recibida.pk))
+        guia_recibida.delete()
+        messages.success(request, "La guía folio " + str(guia_recibida.folio) + " ha sido borrada")
+        return redirect('SAIApp:DWMSRecepcionDetalle', guia_recibida.recepcion.pk)
+    except dwms_guia_recibida.DoesNotExist:
+        messages.error(request, "Esta guía no existe")
+        return redirect('SAIApp:DWMSDespacho')
+
 
 
 def DWMSRecepcionEliminarFotoGuia(request, foto_id):
