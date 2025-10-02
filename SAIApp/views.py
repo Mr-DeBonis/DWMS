@@ -509,7 +509,17 @@ def DWMSRecepcionEliminarGuia(request, guia_rec_id):
 
 
 def DWMSRecepcionEliminarFotoGuia(request, foto_id):
-    pass
+    if request.method == 'POST':
+        try:
+            foto = dwms_foto_guia_recibida.objects.get(pk=foto_id)
+            guia_recibida = foto.guia_recibida
+            guia_recibida.current_user = request.user
+            guia_recibida.save()
+            foto.delete()
+            return JsonResponse({"success": True})
+        except dwms_foto_guia_recibida.DoesNotExist:
+            pass
+    return JsonResponse({"error": "Petición inválida"}, status=400)
 
 
 def DWMSRecepcionEliminarFoto(request, foto_id):
