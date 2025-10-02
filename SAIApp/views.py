@@ -465,7 +465,43 @@ def DWMSRecepcionVerGuia(request, guia_rec_id):
 
 
 def DWMSRecepcionEditarGuia(request, guia_rec_id):
-    pass
+    guia_recibida = dwms_guia_recibida.objects.get(pk=guia_rec_id)
+    fotos = dwms_foto_guia_recibida.objects.filter(guia_recibida=guia_recibida)
+
+    if request.method == 'POST':
+        form = FormGuiaRecibida(request.POST, instance=guia_recibida)
+        files = request.FILES.getlist('filepond')
+
+        if form.is_valid():
+            guia_recibida = form.save(commit=False)
+            guia_recibida.current_user = request.user
+            guia_recibida.save()
+
+            for file in files:
+                dwms_foto_guia_recibida.objects.create(
+                    guia_recibida=guia_recibida,
+                    foto=file
+                )
+
+            messages.success(request, "Guía guardada")
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'recepcion_id': guia_recibida.recepcion.pk})
+
+            return redirect('SAIApp:DWMSRecepcionDetalle', recepcion_id=guia_recibida.recepcion.pk)
+
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = FormGuiaRecibida(instance=guia_recibida)
+
+    context = {
+        'guia_recibida': guia_recibida,
+        'fotos': fotos,
+        'form': form,
+    }
+    return render(request, 'SAIApp/DWMSRecepcionEditarGuia.html', context=context)
 
 
 def DWMSRecepcionEliminarGuia(request, guia_rec_id):
