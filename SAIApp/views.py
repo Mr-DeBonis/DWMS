@@ -455,7 +455,13 @@ def DWMSRecepcionAgregarGuia(request, recepcion_id):
 
 
 def DWMSRecepcionVerGuia(request, guia_rec_id):
-    pass
+    guia_recibida = dwms_guia_recibida.objects.get(pk=guia_rec_id)
+    fotos = dwms_foto_guia_recibida.objects.filter(guia_recibida=guia_recibida)
+    context = {
+        'guia_recibida': guia_recibida,
+        'fotos': fotos,
+    }
+    return render(request, 'SAIApp/DWMSRecepcionVerGuia.html', context=context)
 
 
 def DWMSRecepcionEditarGuia(request, guia_rec_id):

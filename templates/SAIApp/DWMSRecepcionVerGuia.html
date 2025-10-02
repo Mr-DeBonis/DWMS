@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% if user.is_authenticated %}
+    {% block content %}
+        <div class="page-header">
+            <h2>Detalles Guía Folio {{ guia_recibida.folio }}</h2>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos de la guía</h3>
+            </div>
+            <ul class="list-group">
+                    <li class="list-group-item">
+                        <h6 class="list-group-item-heading">Notas</h6>
+                        {% if guia_recibida.nota %}
+                            <small class="list-group-item-text">{{ guia_recibida.nota }}</small>
+                        {% else %}
+                            <small class="list-group-item-text">Sin notas.</small>
+                        {% endif %}
+                    </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">OT Transporte</h6>
+                    {% if guia_recibida.ot_transporte %}
+                        <small class="list-group-item-text">{{ guia_recibida.ot_transporte }}</small>
+                    {% else %}
+                        <small class="list-group-item-text">Sin OT Transporte</small>
+                    {% endif %} 
+                </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Bultos</h6>
+                    <small class="list-group-item-text">{{ guia_recibida.bultos }}</small>
+                </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Creación</h6>
+                    <small class="list-group-item-text">{{ guia_recibida.fecha_creacion }} por {{ guia_recibida.creacion_user }}</small>
+                </li>
+                <li class="list-group-item">
+                    <h6 class="list-group-item-heading">Modificación</h6>
+                    <small class="list-group-item-text ">{{ guia_recibida.fecha_modificacion }} por {{ guia_recibida.mod_user }}</small>
+                </li>
+            </ul>
+        </div>
+        {% if fotos %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Fotos de la Guía</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        {% for foto in fotos %}
+                            <div class="col-sm-6 col-md-4">
+                                <button class="thumbnail foto-thumbnail" data-toggle="modal" data-target="#fotoModal"
+                                        data-url="{{ foto.foto.url }}">
+                                    <img src="{{ foto.foto.url }}" alt="banana">
+                                </button>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="fotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img src="" alt="Foto recepción" class="img-responsive">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row ">
+            <div class="col-xs-4 text-left">
+                <a class="btn btn-default btn-lg" href="{% url 'SAIApp:DWMSRecepcionDetalle' guia_recibida.recepcion.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>&nbsp;Atrás</a>
+            </div>
+            <div class="col-xs-4 text-center">
+                <button class="btn btn-danger btn-lg delete-guia"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;Eliminar</button>
+            </div>
+            <div class="col-xs-4 text-right">
+                <a href="{% url 'SAIApp:DWMSRecepcionEditarGuia' guia_recibida.pk %}" role="button" class="btn btn-warning btn-lg"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;Editar</a>
+            </div>
+        </div>
+    {% endblock %}
+    {% block script %}
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                {% if fotos %}
+                var modal = document.getElementById('fotoModal');
+                var modalImg = modal.querySelector('.modal-body img');
+
+                var thumbnails = document.querySelectorAll('.foto-thumbnail');
+
+                thumbnails.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        var url = button.getAttribute('data-url');
+                        modalImg.setAttribute('src', url);
+                    });
+                });
+                {% endif %}
+
+                document.querySelectorAll(".delete-guia").forEach(button => {
+                    button.addEventListener("click", async function () {
+                        if (!confirm("¿Desea eliminar esta guía?")) return;
+                        window.location.href = `{% url 'SAIApp:DWMSRecepcionEliminarGuia' guia_recibida.pk %}`;
+                    });
+                });
+            });
+        </script>
+    {% endblock %}
+{% endif %}
